@@ -1,0 +1,103 @@
+# The Memory City — The Echo Detective
+
+> **Défi secondaire :** *Oh les beaux boutons* — La Nuit de l’Info 2025 (Thème UX / Gamification / Accessibilité)  
+> **Nature du projet :** Simulation pédagogique autonome d’investigation archivistique dans une ville fictive (*Memoria*).  
+> **Avertissement obligatoire :** **Archives fictives — démonstration.**
+
+---
+
+## 1. Présentation & Concept
+
+Dans le cadre du défi **« Oh les beaux boutons »**, l'objectif est de transformer une attention passive en action concrète et signifiante grâce à une UX soignée, une gamification éthique et des interactions originales.
+
+Plutôt que de proposer un simple quiz binaire (« 1920 ou 1922 ? ») incitant à la devinette, **The Echo Detective** place l'utilisateur dans le rôle d'un enquêteur examinant des archives contradictoires de la ville fictive de Memoria :
+* **Pièce S001 (15/06/1920) :** Lettre municipale attestant l'inauguration de l'horloge sur la *vieille tour*.
+* **Pièce S002 (04/05/1922) :** Coupure de presse relatant la première découverte de l'horloge par les citoyens sur la *nouvelle tour*.
+
+### Signature Interaction — The Missing Bridge (Le Pont Manquant)
+Au centre de l'écran, le lien entre les deux affirmations apparaît comme **une question non résolue** :
+* **Question Q001 (« L'horloge a-t-elle changé de bâtiment ? ») :** Piste pertinente ouvrant l'accès au registre technique **S003 du 12/09/1921**, documentant le démontage et le transfert entre l'ancienne et la nouvelle tour.
+* **Question Q002 (« Qui a fabriqué l'horloge ? ») :** Hors périmètre causal — feedback expliquant que le constructeur n'explique pas la divergence des dates.
+* **Question Q003 (« Les témoins connaissaient-ils la vieille tour ? ») :** Données insuffisantes dans le corpus municipal — rappel des limites de l'archive.
+
+---
+
+## 2. Architecture & Choix Techniques (TDR-001 & CDR-001)
+
+* **Framework & Typage :** React 19 + TypeScript (Strict mode) + Vite.
+* **Direction Artistique (CDR-001) :** *Noir Archivistique Contemporain* (`#101A24`, `#203549`, papier documentaire `#E8DCC8`, accents ambre `#C58A45` et sauge/teal `#3A8C79`). Typographies *DM Sans* et *Cormorant Garamond*.
+* **Motion Design (M01–M10) :** Micro-transitions contrôlées par variables CSS (120ms à 240ms), respect absolu de `prefers-reduced-motion` et bascule explicite d'accessibilité.
+* **Persistance & Intégrité (F07 / A08 / A22) :** Sauvegarde réelle dans le `LocalStorage` local de démonstration avec **relecture et vérification immédiate de concordance** avant émission de tout reçu. En cas de panne de stockage simulée (Test A22), aucun faux reçu n'est généré et la saisie de l'utilisateur est préservée.
+* **Sécurité :** Neutralisation systématique des balises HTML dans les justifications d'enquête (Section 10).
+* **Mode Fallback (A23) :** Commutateur permettant de basculer à tout moment entre la Signature Interaction (*Missing Bridge*) et le mode *Comparaison guidée classique*.
+
+---
+
+## 3. Matrice de Traçabilité des Exigences & Tests (A01 à A23)
+
+| ID Test | Exigence | Scénario | Résultat & Preuve |
+|---|---|---|---|
+| **A01** | F01 / OFF-01 | Ouverture du dossier C001 | Validé (vue S01 avec titre, contexte et CTA) |
+| **A02** | OFF-02 | Clarté et vulgarisation sans jargon | Validé (objectifs et méthode expliqués simplement) |
+| **A03** | F02 / M02 | Examen des sources S001 et S002 | Validé (consultation, dates, cotes et fac-similés accessibles) |
+| **A04** | **F03 / M03** | **Signature Interaction — The Missing Bridge** | **Validé (Q001, Q002, Q003 avec feedbacks causaux distincts)** |
+| **A05** | F04 / M04 | Révélation de l'indice S003 | Validé (S003 apparaît immédiatement à proximité lors de Q001) |
+| **A06** | F05 / M05 | Raisonnement sur preuves & 4 types de relations | Validé (qualification *supports*, *challenges*, *insufficient*, *unrelated*) |
+| **A07** | F06 / M06 / P11 | Verdict réversible | Validé (comparaison Avant/Après avec pièces conservées) |
+| **A08** | F07 / M07 | Enregistrement et vérification par relecture | Validé (écriture + relecture immédiate, reçu avec statut exact) |
+| **A09** | F09 / M08 | Validation de saisie et récupération clavier | Validé (justification < 15 car. bloquée avec focus automatique) |
+| **A10** | F11 / OFF-03 | Accessibilité clavier & ARIA | Validé (skip-link, outline focus 3px net, boutons natifs) |
+| **A11** | F10 / OFF-04 | Progression factuelle vérifiée | Validé (5 jalons réels, progression découplée des clics décoratifs) |
+| **A12** | M01–M10 / OFF-05 | Mode Reduced Motion | Validé (bascule instantanée, suppression des animations) |
+| **A13** | OFF-06 | Démonstration Missing Bridge | Validé (liaison dynamique question → indice → hypothèse) |
+| **A14** | OFF-07 | Dark patterns éthiques | Validé (aucun consentement forcé, transparence complète) |
+| **A16** | F08 | Restauration de session après rafraîchissement | Validé (reprise d'état depuis le stockage local) |
+| **A17** | F12 | Avertissement fictionnel permanent | Validé (badge « Archives fictives — démonstration ») |
+| **A18** | Section 10 | Mise en page adaptative responsive | Validé (grille CSS fluide de 360px à 1440px) |
+| **A20** | Dataset | Détection de référence corrompue | Validé (détection automatique, écran d'alerte et blocage) |
+| **A21** | Dataset | Détection de jeu de données vide | Validé (signalement d'indisponibilité sans faux succès) |
+| **A22** | Stockage | Panne de stockage simulée | Validé (aucun reçu mensonger, saisie conservée intacte) |
+| **A23** | UX | Comparaison Signature vs Baseline classique | Validé (bouton de bascule interactif en en-tête) |
+
+---
+
+## 4. Installation, Lancement et Tests
+
+### Pré-requis
+* Node.js >= 18 (testé avec Node v24.15.0)
+* npm >= 9 (testé avec npm 11.12.1)
+
+### Installation
+```bash
+npm install
+```
+
+### Lancement en développement
+```bash
+npm run dev
+```
+
+### Vérification TypeScript & Linting
+```bash
+npm run lint
+```
+
+### Exécution de la suite de tests automatisés (Vitest + React Testing Library)
+```bash
+npm test
+```
+
+### Build de production
+```bash
+npm run build
+```
+Le livrable statique optimisé est généré dans le dossier `dist/`.
+
+---
+
+## 5. Outils de Démonstration & Test Intégrés
+
+Une barre d'outils de test est accessible en bas de page pour vérifier les comportements de résilience en direct :
+1. **Simuler panne stockage (A22) :** bloque l'écriture dans le navigateur pour démontrer qu'aucun faux reçu n'est émis et que la saisie reste récupérable.
+2. **Tester Dataset vide (A21) :** simule l'absence de dossier pour valider l'affichage de l'état d'erreur et le bouton de récupération.
+3. **Tester Réf. rompue (A20) :** simule une corruption référentielle pour vérifier la validation du domaine.

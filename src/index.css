@@ -1,0 +1,199 @@
+:root {
+  /* CDR-001 Design Tokens — Noir Archivistique Contemporain */
+  --archive-ink: #101A24;
+  --archive-ink-elevated: #162432;
+  --archive-midnight: #203549;
+  --archive-midnight-border: #314E68;
+  --archive-paper: #E8DCC8;
+  --archive-paper-aged: #DDD0B8;
+  --archive-paper-border: #C4B293;
+  --archive-amber: #C58A45;
+  --archive-amber-bright: #DDA35D;
+  --archive-amber-surface: rgba(197, 138, 69, 0.16);
+  --archive-teal: #3A8C79;
+  --archive-teal-bright: #56B39D;
+  --archive-teal-surface: rgba(58, 140, 121, 0.18);
+  --archive-crimson: #D96B6B;
+  --archive-crimson-surface: rgba(217, 107, 107, 0.16);
+
+  --text-light: #F7F4ED;
+  --text-muted: #C4CED8;
+  --text-ink: #172432;
+  --text-ink-secondary: #33475B;
+
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --spacing-base: 4px;
+  --content-max: 1200px;
+
+  /* Typographies CDR-001 */
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+  /* Motion Design Tokens M01–M10 */
+  --motion-m01: 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-m02: 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-m03: 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-m04: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-m05: 180ms ease-out;
+  --motion-m06: 200ms ease-out;
+  --motion-m07: 160ms ease-out;
+  --motion-m09: 120ms ease-in-out;
+}
+
+/* Reduced Motion support (OS preference + explicit UI toggle) */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-m01: 0ms;
+    --motion-m02: 0ms;
+    --motion-m03: 0ms;
+    --motion-m04: 0ms;
+    --motion-m05: 0ms;
+    --motion-m06: 0ms;
+    --motion-m07: 0ms;
+    --motion-m09: 0ms;
+  }
+}
+
+[data-reduced-motion='true'] {
+  --motion-m01: 0ms;
+  --motion-m02: 0ms;
+  --motion-m03: 0ms;
+  --motion-m04: 0ms;
+  --motion-m05: 0ms;
+  --motion-m06: 0ms;
+  --motion-m07: 0ms;
+  --motion-m09: 0ms;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  background-color: var(--archive-ink);
+  color: var(--text-light);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(32, 53, 73, 0.55) 0%, rgba(16, 26, 36, 0.98) 70%),
+    var(--archive-ink);
+  color: var(--text-light);
+  font-size: 1rem;
+  overflow-x: hidden;
+}
+
+/* M10: Constant, net keyboard focus outline */
+:focus-visible {
+  outline: 3px solid var(--archive-amber-bright);
+  outline-offset: 3px;
+}
+
+.paper-surface :focus-visible {
+  outline: 3px solid var(--archive-midnight);
+  outline-offset: 3px;
+}
+
+/* Skip link for keyboard accessibility (OFF-03 / F11 / A10) */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 9999;
+  background: var(--archive-amber);
+  color: var(--archive-ink);
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+h1,
+h2,
+h3,
+.serif-heading {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+p {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+/* Layout shell */
+.app-container {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 0 12px 72px;
+  }
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Keyframe animations controlled by motion tokens */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-entry {
+  animation: fadeSlideIn var(--motion-m01) forwards;
+}
+
+.animate-clue-reveal {
+  animation: fadeSlideIn var(--motion-m04) forwards;
+}
+
+[data-reduced-motion='true'] .animate-entry,
+[data-reduced-motion='true'] .animate-clue-reveal {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
