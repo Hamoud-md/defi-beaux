@@ -1,6 +1,7 @@
 import React from 'react';
 import { Source } from '../types/archive';
 import { ArchivalIllustration } from './ArchivalIllustration';
+import { useI18n } from '../i18n/I18nContext';
 
 interface EvidenceDocumentProps {
   source: Source;
@@ -15,6 +16,8 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
   isFocusedDetail = false,
   onInspect,
 }) => {
+  const { t } = useI18n();
+
   return (
     <article
       aria-labelledby={`source-title-${source.id}`}
@@ -90,7 +93,7 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
                 border: '1px solid #C4B293',
               }}
             >
-              Date : {source.date}
+              {t('evidence.date')} {source.date}
             </time>
             <span
               data-testid={`source-status-${source.id}`}
@@ -103,7 +106,7 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
                 color: '#F7F4ED',
               }}
             >
-              {isInspected ? '✓ Consulté (non vérifié)' : '○ Non consulté'}
+              {isInspected ? t('evidence.inspected') : t('evidence.notInspected')}
             </span>
           </div>
         </div>
@@ -128,8 +131,8 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
               fontFamily: 'var(--font-mono)',
             }}
           >
-            Cote : {source.archiveCode} • Édifice : <strong>{source.buildingMentioned}</strong> •
-            [Archive fictive]
+            {t('evidence.cote')} {source.archiveCode} • {t('evidence.building')}{' '}
+            <strong>{source.buildingMentioned}</strong> • {t('evidence.fictiveArchive')}
           </p>
         </div>
 
@@ -143,7 +146,8 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
             padding: '14px 16px',
             backgroundColor: '#F4EDE1',
             borderLeft: '4px solid var(--text-ink)',
-            borderRadius: '0 8px 8px 0',
+            borderRight: '4px solid var(--text-ink)',
+            borderRadius: '8px',
             fontFamily: 'var(--font-serif)',
             fontSize: '1.25rem',
             fontWeight: 600,
@@ -161,7 +165,7 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
             color: 'var(--text-ink-secondary)',
           }}
         >
-          <strong>Contexte archivistique :</strong> {source.contextNote}
+          <strong>{t('evidence.contextLabel')}</strong> {source.contextNote}
         </p>
 
         {isInspected && (
@@ -174,11 +178,10 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
               color: 'var(--text-ink)',
               marginBottom: '12px',
               borderLeft: '3px solid #235E51',
+              borderRight: '3px solid #235E51',
             }}
           >
-            <strong>Statut épistémique :</strong> Document marqué comme{' '}
-            <em>« consulté »</em>. Sa lecture atteste l’existence de l’extrait dans le dossier, mais
-            ne prouve pas automatiquement la totalité des faits sans croisement.
+            <strong>{t('evidence.epistemic')}</strong> {t('evidence.epistemicDetail')}
           </div>
         )}
       </div>
@@ -209,8 +212,8 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
           }}
         >
           {isInspected
-            ? `✓ Pièce ${source.id} examinée (Afficher le détail)`
-            : `Examiner la pièce ${source.id} (${source.date})`}
+            ? t('evidence.inspectedBtn', { id: source.id })
+            : t('evidence.inspectBtn', { id: source.id, date: source.date })}
         </button>
       </div>
     </article>

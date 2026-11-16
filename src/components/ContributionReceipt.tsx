@@ -1,10 +1,7 @@
 import React from 'react';
 import { ArchiveDataset, Contribution } from '../types/archive';
-import {
-  CONCLUSION_OPTIONS,
-  FICTIONAL_WARNING_BADGE,
-  LOCAL_RECEIPT_BADGE,
-} from '../data/caseC001';
+import { getLocalizedConclusionOptions } from '../data/caseC001';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ContributionReceiptProps {
   contribution: Contribution | null;
@@ -21,6 +18,9 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
   onReviseVerdict,
   onRestartInvestigation,
 }) => {
+  const { locale, config, t } = useI18n();
+  const conclusionOptions = getLocalizedConclusionOptions(locale);
+
   if (!contribution) {
     return (
       <section
@@ -34,11 +34,10 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
         }}
       >
         <h2 id="no-receipt-heading" style={{ fontSize: '1.5rem', marginBottom: '8px' }}>
-          Aucun reçu de contribution actif pour cette session
+          {t('receipt.noReceipt.title')}
         </h2>
         <p style={{ color: 'var(--text-muted)', marginBottom: '16px' }}>
-          Conformément à l’exigence F07/A08, aucun reçu n’est généré tant qu’une conclusion valide
-          n’a pas été réellement écrite et relue dans le stockage local.
+          {t('receipt.noReceipt.text')}
         </p>
         <button
           type="button"
@@ -53,13 +52,13 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
             cursor: 'pointer',
           }}
         >
-          Aller au formulaire de conclusion (S05)
+          {t('receipt.noReceipt.cta')}
         </button>
       </section>
     );
   }
 
-  const conclusionMeta = CONCLUSION_OPTIONS.find((c) => c.value === contribution.conclusionType);
+  const conclusionMeta = conclusionOptions.find((c) => c.value === contribution.conclusionType);
 
   return (
     <section
@@ -104,7 +103,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
               borderRadius: '999px',
             }}
           >
-            ✓ {LOCAL_RECEIPT_BADGE}
+            ✓ {t('badge.localReceipt')}
           </span>
 
           <span
@@ -118,7 +117,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
               borderRadius: '999px',
             }}
           >
-            ◆ {FICTIONAL_WARNING_BADGE}
+            ◆ {t('badge.fictional')}
           </span>
         </div>
 
@@ -130,11 +129,10 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
             color: 'var(--text-ink)',
           }}
         >
-          Accusé de réception — Registre d’enquête de Memoria
+          {t('receipt.title')}
         </h2>
         <p style={{ margin: '0 0 18px 0', color: 'var(--text-ink-secondary)', fontSize: '0.95rem' }}>
-          Ce reçu atteste que votre contribution a été écrite puis relue avec succès dans le
-          stockage local de votre appareil (statut : <code>{contribution.status}</code>).
+          {t('receipt.subtitle', { status: contribution.status })}
         </p>
 
         {/* Metadata Grid */}
@@ -152,7 +150,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
         >
           <div>
             <span style={{ display: 'block', fontSize: '0.76rem', color: '#33475B' }}>
-              Référence locale générée :
+              {t('receipt.refLabel')}
             </span>
             <strong
               data-testid="receipt-id"
@@ -164,26 +162,26 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
 
           <div>
             <span style={{ display: 'block', fontSize: '0.76rem', color: '#33475B' }}>
-              Dossier &amp; Piste retenue :
+              {t('receipt.caseLabel')}
             </span>
             <strong>
-              {contribution.caseId} (Question : {contribution.selectedQuestionId ?? 'N/A'})
+              {contribution.caseId} ({t('bridge.activeTrack')} {contribution.selectedQuestionId ?? 'N/A'})
             </strong>
           </div>
 
           <div>
             <span style={{ display: 'block', fontSize: '0.76rem', color: '#33475B' }}>
-              Horodatage de sauvegarde :
+              {t('receipt.dateLabel')}
             </span>
-            <strong>{new Date(contribution.savedAt).toLocaleString('fr-FR')}</strong>
+            <strong>{new Date(contribution.savedAt).toLocaleString(config.dateLocale)}</strong>
           </div>
 
           <div>
             <span style={{ display: 'block', fontSize: '0.76rem', color: '#33475B' }}>
-              Vérification écriture / relecture :
+              {t('receipt.verifyLabel')}
             </span>
             <strong data-testid="receipt-verified-status" style={{ color: '#1B4D3E' }}>
-              {contribution.verifiedReadBack ? '✓ Intégrité relue et confirmée' : 'Non vérifié'}
+              {contribution.verifiedReadBack ? t('receipt.verified') : t('receipt.notVerified')}
             </strong>
           </div>
         </div>
@@ -191,7 +189,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
         {/* Verdict & Justification */}
         <div style={{ marginBottom: '18px' }}>
           <h3 style={{ fontSize: '1.2rem', margin: '0 0 6px 0', color: 'var(--text-ink)' }}>
-            Verdict enregistré :
+            {t('receipt.verdictLabel')}
           </h3>
           <div
             data-testid="receipt-conclusion-type"
@@ -199,7 +197,8 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
               padding: '12px 14px',
               backgroundColor: '#F4EDE1',
               borderLeft: '4px solid #235E51',
-              borderRadius: '0 8px 8px 0',
+              borderRight: '4px solid #235E51',
+              borderRadius: '8px',
               fontWeight: 700,
               marginBottom: '12px',
             }}
@@ -211,7 +210,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
           </div>
 
           <h3 style={{ fontSize: '1.2rem', margin: '0 0 6px 0', color: 'var(--text-ink)' }}>
-            Justification sauvegardée :
+            {t('receipt.justificationLabel')}
           </h3>
           <blockquote
             data-testid="receipt-justification"
@@ -220,7 +219,8 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
               padding: '14px 16px',
               backgroundColor: '#F4EDE1',
               borderLeft: '4px solid var(--text-ink)',
-              borderRadius: '0 8px 8px 0',
+              borderRight: '4px solid var(--text-ink)',
+              borderRadius: '8px',
               fontSize: '1.05rem',
             }}
           >
@@ -231,13 +231,14 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
         {/* Referenced Sources */}
         <div style={{ marginBottom: '20px' }}>
           <h3 style={{ fontSize: '1.2rem', margin: '0 0 8px 0', color: 'var(--text-ink)' }}>
-            Pièces d’archives consultées et citées ({contribution.referencedSourceIds.length}) :
+            {t('receipt.sourcesLabel', { n: contribution.referencedSourceIds.length })}
           </h3>
           <ul
             data-testid="receipt-referenced-sources"
             style={{
               margin: 0,
               paddingLeft: '20px',
+              paddingRight: '20px',
               display: 'flex',
               flexDirection: 'column',
               gap: '6px',
@@ -279,7 +280,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
               cursor: 'pointer',
             }}
           >
-            ↺ Réviser mon verdict (Comparaison avant/après — S05)
+            {t('receipt.revise')}
           </button>
 
           <button
@@ -296,7 +297,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
               cursor: 'pointer',
             }}
           >
-            Recommencer une nouvelle enquête
+            {t('receipt.restart')}
           </button>
         </div>
       </div>
@@ -312,7 +313,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
           }}
         >
           <h3 style={{ fontSize: '1.2rem', margin: '0 0 10px 0' }}>
-            Historique local des contributions sur cet appareil ({allContributions.length})
+            {t('receipt.historyTitle', { n: allContributions.length })}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {allContributions.map((item) => (
@@ -336,11 +337,11 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
                   </strong>{' '}
                   • <span>{item.conclusionType}</span> •{' '}
                   <span style={{ color: 'var(--text-muted)' }}>
-                    Sources : [{item.referencedSourceIds.join(', ')}]
+                    {t('receipt.sources')} [{item.referencedSourceIds.join(', ')}]
                   </span>
                 </div>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                  {new Date(item.savedAt).toLocaleString('fr-FR')} ({item.status})
+                  {new Date(item.savedAt).toLocaleString(config.dateLocale)} ({item.status})
                 </span>
               </div>
             ))}

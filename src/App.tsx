@@ -11,7 +11,9 @@ import {
   BROKEN_REFERENCE_DATASET,
   CASE_C001_DATASET,
   EMPTY_ARCHIVE_DATASET,
+  getLocalizedDataset,
 } from './data/caseC001';
+import { useI18n } from './i18n/I18nContext';
 import { calculateFactualProgress, validateDataset } from './domain/validation';
 import {
   clearInvestigationSession,
@@ -38,9 +40,21 @@ import { ConclusionPanel } from './components/ConclusionPanel';
 import { ContributionReceipt } from './components/ContributionReceipt';
 
 export const App: React.FC = () => {
-  // Dataset state (supports switching for automated QA tests A20 / A21)
-  const [currentDataset, setCurrentDataset] = useState<ArchiveDataset>(CASE_C001_DATASET);
+  const { locale, t } = useI18n();
+
+  // Dataset state (supports switching for automated QA tests A20 / A21 and localization)
+  const [currentDataset, setCurrentDataset] = useState<ArchiveDataset>(() => getLocalizedDataset(locale));
   const [datasetError, setDatasetError] = useState<string | null>(null);
+
+  // Update dataset when locale changes (if not running a custom test dataset)
+  useEffect(() => {
+    setCurrentDataset((prev) => {
+      if (prev === EMPTY_ARCHIVE_DATASET || prev === BROKEN_REFERENCE_DATASET) {
+        return prev;
+      }
+      return getLocalizedDataset(locale);
+    });
+  }, [locale]);
 
   // Reduced motion preference (OS + user toggle)
   const [reducedMotion, setReducedMotion] = useState<boolean>(() => {
@@ -219,10 +233,10 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-container" data-testid="app-root">
-      {/* Skip link for keyboard users (A10) */}
-      <a href="#main-content" className="skip-link">
-        Passer au contenu principal de l'enquête
-      </a>
+        {/* Skip link for keyboard users (A10) */}
+        <a href="#main-content" className="skip-link">
+          {t('skip.link')}
+        </a>
 
       {/* Case Header & Global Controls */}
       {currentDataset.caseData && (
@@ -411,10 +425,9 @@ export const App: React.FC = () => {
           }}
         >
           <div>
-            <strong>THE MEMORY CITY • THE ECHO DETECTIVE</strong> — Défi{' '}
-            <em>« Oh les beaux boutons »</em> (Nuit de l'Info 2025).
+            <strong>{t('app.footer.title')}</strong> — {t('app.footer.challenge')}
             <br />
-            Archives entièrement fictives — Simulation pédagogique autonome.
+            {t('app.footer.disclaimer')}
           </div>
 
           {/* Test Utilities Toolbar (A20, A21, A22 verification tools) */}

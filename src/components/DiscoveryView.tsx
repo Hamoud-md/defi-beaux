@@ -1,6 +1,6 @@
 import React from 'react';
 import { Case } from '../types/archive';
-import { FICTIONAL_WARNING_BADGE } from '../data/caseC001';
+import { useI18n } from '../i18n/I18nContext';
 
 interface DiscoveryViewProps {
   caseData: Case;
@@ -12,6 +12,8 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
   caseData,
   onStartInvestigation,
 }) => {
+  const { t, isRtl } = useI18n();
+
   return (
     <section
       aria-labelledby="discovery-title"
@@ -48,7 +50,7 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
           }}
         >
           <span aria-hidden="true">◆</span>
-          {FICTIONAL_WARNING_BADGE}
+          {t('badge.fictional')}
         </div>
 
         <h2
@@ -59,7 +61,7 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
             marginBottom: '14px',
           }}
         >
-          Dossier {caseData.id} — {caseData.title}
+          {t('header.casePrefix')} {caseData.id} — {caseData.title}
         </h2>
 
         <p
@@ -101,7 +103,7 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
               }}
             >
               <span style={{ color: 'var(--archive-amber-bright)' }}>✦</span>
-              Le Contexte &amp; Le Problème
+              {t('discovery.context')}
             </h3>
             <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.98rem' }}>
               {caseData.description}
@@ -127,7 +129,7 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
               }}
             >
               <span style={{ color: 'var(--archive-teal-bright)' }}>✦</span>
-              Votre Objectif d'Enquêteur
+              {t('discovery.objective')}
             </h3>
             <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.98rem' }}>
               {caseData.objective}
@@ -153,14 +155,10 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
               marginBottom: '6px',
             }}
           >
-            Méthode d'investigation rigoureuse :
+            {t('discovery.method.title')}
           </strong>
           <p style={{ margin: 0, fontSize: '0.94rem', color: 'var(--text-light)' }}>
-            Dans <em>The Echo Detective</em>, il ne s'agit pas de choisir aveuglément entre deux
-            dates. Vous examinerez deux archives municipales divergentes, identifierez quelle
-            information manque grâce au <strong>Missing Bridge</strong>, analyserez les indices
-            découverts, et rédigerez une conclusion motivée qui sera enregistrée dans le registre
-            local de démonstration.
+            {t('discovery.method.text')}
           </p>
         </div>
 
@@ -177,7 +175,7 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
           }}
         >
           <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Ville fictive de Memoria • Simulation pédagogique autonome
+            {t('discovery.fiction')}
           </div>
 
           <button
@@ -200,8 +198,8 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
               transition: 'background-color var(--motion-m09)',
             }}
           >
-            <span>Commencer l’enquête</span>
-            <span aria-hidden="true">→</span>
+            <span>{t('discovery.cta')}</span>
+            <span aria-hidden="true">{isRtl ? '←' : '→'}</span>
           </button>
         </div>
       </div>

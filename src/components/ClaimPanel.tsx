@@ -1,5 +1,6 @@
 import React from 'react';
 import { Claim, Source } from '../types/archive';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ClaimPanelProps {
   claim: Claim;
@@ -16,6 +17,7 @@ export const ClaimPanel: React.FC<ClaimPanelProps> = ({
   onInspectSource,
   highlightVariant = 'default',
 }) => {
+  const { t } = useI18n();
   const allLinkedInspected = linkedSources.every((s) => inspectedSourceIds.includes(s.id));
 
   return (
@@ -71,7 +73,7 @@ export const ClaimPanel: React.FC<ClaimPanelProps> = ({
               color: allLinkedInspected ? 'var(--archive-teal-bright)' : 'var(--text-muted)',
             }}
           >
-            {allLinkedInspected ? '✓ Source(s) consultée(s)' : '○ Source à consulter'}
+            {allLinkedInspected ? t('claim.sourcesInspected') : t('claim.sourcePending')}
           </span>
         </div>
 
@@ -110,13 +112,13 @@ export const ClaimPanel: React.FC<ClaimPanelProps> = ({
         >
           <div>
             <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.76rem' }}>
-              Date mentionnée :
+              {t('claim.dateMentioned')}
             </span>
             <strong>{claim.yearLabel}</strong>
           </div>
           <div>
             <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.76rem' }}>
-              Édifice mentionné :
+              {t('claim.buildingMentioned')}
             </span>
             <strong>{claim.locationLabel}</strong>
           </div>
@@ -167,8 +169,8 @@ export const ClaimPanel: React.FC<ClaimPanelProps> = ({
                 }}
               >
                 {inspected
-                  ? `✓ ${src.id} consulté (Relire la pièce)`
-                  : `Marquer ${src.id} comme consulté`}
+                  ? t('claim.inspectBtn.done', { id: src.id })
+                  : t('claim.inspectBtn.pending', { id: src.id })}
               </button>
             </div>
           );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResearchQuestion as ResearchQuestionType } from '../types/archive';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ResearchQuestionProps {
   question: ResearchQuestionType;
@@ -14,6 +15,7 @@ export const ResearchQuestion: React.FC<ResearchQuestionProps> = ({
   wasExplored,
   onSelect,
 }) => {
+  const { t } = useI18n();
   const isPertinent = question.trackStatus === 'pertinent_bridge';
 
   return (
@@ -68,7 +70,7 @@ export const ResearchQuestion: React.FC<ResearchQuestionProps> = ({
               color: '#F7F4ED',
             }}
           >
-            {isPertinent ? '✓ Piste fructueuse (S003)' : '○ Piste sans preuve directe'}
+            {isPertinent ? t('question.trackBadge.pertinent') : t('question.trackBadge.other')}
           </span>
         )}
       </div>
@@ -106,14 +108,14 @@ export const ResearchQuestion: React.FC<ResearchQuestionProps> = ({
         }}
       >
         {isSelected
-          ? `✓ Question active : ${question.id}`
-          : `Interroger cette piste (${question.id})`}
+          ? t('question.active', { id: question.id })
+          : t('question.select', { id: question.id })}
       </button>
 
       {isSelected && (
         <div
           role="region"
-          aria-label={`Résultat de la piste ${question.id}`}
+          aria-label={t('question.resultLabel', { id: question.id })}
           data-testid={`question-feedback-${question.id}`}
           className="animate-entry"
           style={{
@@ -122,6 +124,9 @@ export const ResearchQuestion: React.FC<ResearchQuestionProps> = ({
             borderRadius: '8px',
             backgroundColor: 'rgba(16, 26, 36, 0.9)',
             borderLeft: isPertinent
+              ? '4px solid var(--archive-teal-bright)'
+              : '4px solid var(--archive-amber)',
+            borderRight: isPertinent
               ? '4px solid var(--archive-teal-bright)'
               : '4px solid var(--archive-amber)',
             fontSize: '0.9rem',
@@ -134,11 +139,11 @@ export const ResearchQuestion: React.FC<ResearchQuestionProps> = ({
               color: isPertinent ? 'var(--archive-teal-bright)' : 'var(--archive-amber-bright)',
             }}
           >
-            Statut de la piste : {question.trackStatusLabel}
+            {t('question.trackStatus')} {question.trackStatusLabel}
           </p>
           <p style={{ margin: '0 0 6px 0', color: 'var(--text-light)' }}>{question.feedback}</p>
           <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-muted)' }}>
-            <strong>Portée épistémique :</strong> {question.epistemicLimit}
+            <strong>{t('question.epistemicScope')}</strong> {question.epistemicLimit}
           </p>
         </div>
       )}

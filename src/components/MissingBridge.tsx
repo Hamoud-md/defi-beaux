@@ -7,6 +7,7 @@ import {
 import { ClaimPanel } from './ClaimPanel';
 import { ResearchQuestion } from './ResearchQuestion';
 import { EvidenceDocument } from './EvidenceDocument';
+import { useI18n } from '../i18n/I18nContext';
 
 interface MissingBridgeProps {
   dataset: ArchiveDataset;
@@ -29,6 +30,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
   onInspectSource,
   onProceedToAnalysis,
 }) => {
+  const { t } = useI18n();
   const claim1 = dataset.claims.find((c) => c.id === 'CL001');
   const claim2 = dataset.claims.find((c) => c.id === 'CL002');
   const claim3 = dataset.claims.find((c) => c.id === 'CL003');
@@ -43,15 +45,15 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
 
   const getBridgeStatusText = (): string => {
     if (!activeQuestion) {
-      return 'Liaison ouverte : Question non résolue entre 1920 (Vieille tour) et 1922 (Nouvelle tour). Choisissez quelle information manque pour expliquer cet écart.';
+      return t('bridge.status.none');
     }
     if (activeQuestion.id === 'Q001') {
-      return 'Pont documentaire activé (Q001) : Le registre S003 (12/09/1921) documente un transfert de la vieille tour vers la nouvelle tour. Cause → effet : indice S003 révélé.';
+      return t('bridge.status.Q001');
     }
     if (activeQuestion.id === 'Q002') {
-      return 'Liaison non résolue (Q002) : Le constructeur de l’horloge n’explique pas directement pourquoi deux tours et deux dates différentes apparaissent.';
+      return t('bridge.status.Q002');
     }
-    return 'Liaison en incertitude (Q003) : Piste intéressante sur la mémoire des habitants, mais données insuffisantes dans le corpus.';
+    return t('bridge.status.Q003');
   };
 
   return (
@@ -87,12 +89,10 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
               display: 'block',
             }}
           >
-            Résumé comparatif permanent • Écart observé
+            {t('bridge.summaryLabel')}
           </span>
           <p style={{ margin: '4px 0 0 0', fontSize: '0.95rem', color: 'var(--text-light)' }}>
-            <strong>S001 (15/06/1920)</strong> : Inauguration sur la <em>vieille tour</em>{' '}
-            <span aria-hidden="true">⟷</span> <strong>S002 (04/05/1922)</strong> : Première
-            découverte sur la <em>nouvelle tour</em>.
+            {t('bridge.summaryText')}
           </p>
         </div>
 
@@ -110,9 +110,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
             fontWeight: 700,
           }}
         >
-          {isS003Unlocked
-            ? '✓ Indice intermédiaire S003 (1921) déverrouillé'
-            : '? Indice intermédiaire manquant'}
+          {isS003Unlocked ? t('bridge.clueUnlocked') : t('bridge.clueMissing')}
         </div>
       </div>
 
@@ -122,12 +120,11 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
           style={{ fontSize: '1.75rem', margin: '0 0 6px 0', color: 'var(--text-light)' }}
         >
           {interactionMode === 'missing-bridge'
-            ? 'Signature Interaction — The Missing Bridge (Le Pont Manquant)'
-            : 'Mode Fallback — Comparaison Guidée Classique (Baseline A23)'}
+            ? t('bridge.heading.signature')
+            : t('bridge.heading.fallback')}
         </h2>
         <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-          Plutôt que de deviner « 1920 ou 1922 ? », identifiez <strong>quelle question de recherche</strong>{' '}
-          permet d’expliquer l’écart entre les deux affirmations.
+          {t('bridge.instruction')}
         </p>
       </div>
 
@@ -172,7 +169,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
               backgroundColor: 'var(--archive-ink)',
             }}
           >
-            Piste active : {selectedQuestionId ?? 'Aucune'}
+            {t('bridge.activeTrack')} {selectedQuestionId ?? t('bridge.none')}
           </span>
         </div>
       </div>
@@ -239,11 +236,11 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
                   }}
                 >
                   {selectedQuestionId === 'Q001'
-                    ? '✓ Liaison établie (1920 → 1921 → 1922)'
-                    : '? Question non résolue entre CL001 et CL002'}
+                    ? t('bridge.linked')
+                    : t('bridge.unresolved')}
                 </span>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.88rem', color: 'var(--text-light)' }}>
-                  Quelle information manque pour expliquer cet écart ?
+                  {t('bridge.centerQuestion')}
                 </p>
               </div>
 
@@ -284,8 +281,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
           }}
         >
           <p style={{ marginTop: 0, color: 'var(--text-muted)' }}>
-            <strong>Mode Comparaison Guidée (Fallback) :</strong> Présentation séquentielle des
-            deux affirmations et des trois questions de recherche avec les mêmes exigences de preuve.
+            <strong>{t('bridge.fallbackTitle')}</strong> {t('bridge.fallbackDesc')}
           </p>
           <div
             style={{
@@ -313,7 +309,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
             )}
           </div>
           <h3 style={{ fontSize: '1.25rem', marginBottom: '10px' }}>
-            Sélectionnez une question de recherche :
+            {t('bridge.selectQuestion')}
           </h3>
           <div
             style={{
@@ -371,10 +367,10 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
                   marginBottom: '6px',
                 }}
               >
-                ✓ Nouvel indice révélé par la question Q001
+                {t('bridge.revealBadge')}
               </span>
               <h3 style={{ margin: 0, fontSize: '1.45rem', color: 'var(--text-light)' }}>
-                Pièce intermédiaire découverte : {source3.id} — {source3.title} ({source3.date})
+                {t('bridge.revealTitle', { id: source3.id, title: source3.title, date: source3.date })}
               </h3>
             </div>
 
@@ -396,7 +392,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
                 fontSize: '0.95rem',
               }}
             >
-              Analyser la portée de S003 et les hypothèses (Étape S04) →
+              {t('bridge.proceedS04')}
             </button>
           </div>
 

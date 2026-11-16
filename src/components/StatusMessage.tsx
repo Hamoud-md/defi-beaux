@@ -1,5 +1,6 @@
 import React from 'react';
 import { TransverseState } from '../types/archive';
+import { useI18n } from '../i18n/I18nContext';
 
 interface StatusMessageProps {
   transverseStates: TransverseState[];
@@ -10,15 +11,26 @@ interface StatusMessageProps {
   retryLabel?: string;
 }
 
-const STATE_LABELS: Record<TransverseState, { label: string; icon: string }> = {
-  initial: { label: 'État : Initial', icon: '◈' },
-  loading: { label: 'État : Chargement', icon: '◌' },
-  empty: { label: 'État : Dossier indisponible (Empty)', icon: '⚠' },
-  error: { label: 'État : Erreur détectée', icon: '✕' },
-  success: { label: 'État : Sauvegarde vérifiée', icon: '✓' },
-  revisited: { label: 'Session restaurée (Revisited)', icon: '↺' },
-  'reduced-motion': { label: 'Mouvement réduit (Reduced Motion)', icon: '◎' },
-  'storage-unavailable': { label: 'Stockage local indisponible', icon: '⚠' },
+const STATE_ICONS: Record<TransverseState, string> = {
+  initial: '◈',
+  loading: '◌',
+  empty: '⚠',
+  error: '✕',
+  success: '✓',
+  revisited: '↺',
+  'reduced-motion': '◎',
+  'storage-unavailable': '⚠',
+};
+
+const STATE_TRANSLATION_KEYS: Record<TransverseState, string> = {
+  initial: 'status.initial',
+  loading: 'status.loading',
+  empty: 'status.empty',
+  error: 'status.error',
+  success: 'status.success',
+  revisited: 'status.revisited',
+  'reduced-motion': 'status.reducedMotion',
+  'storage-unavailable': 'status.storageUnavailable',
 };
 
 export const StatusMessage: React.FC<StatusMessageProps> = ({
@@ -27,10 +39,14 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
   errorDetail,
   onDismissMessage,
   onRetryAction,
-  retryLabel = 'Rétablir l’état nominal',
+  retryLabel,
 }) => {
+  const { t } = useI18n();
+
+  const effectiveRetryLabel = retryLabel || t('status.retry');
+
   const hasError =
-     Boolean(errorDetail) ||
+    Boolean(errorDetail) ||
     transverseStates.includes('error') ||
     transverseStates.includes('empty') ||
     transverseStates.includes('storage-unavailable');
@@ -39,7 +55,7 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
     <div style={{ marginBottom: '16px' }}>
       {/* Transverse active state badges */}
       <div
-        aria-label="États transverses actifs du système"
+        aria-label={t('status.activeStates')}
         style={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -49,10 +65,11 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
         }}
       >
         <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-          États actifs :
+          {t('status.activeStates')}
         </span>
         {transverseStates.map((st) => {
-          const meta = STATE_LABELS[st];
+          const icon = STATE_ICONS[st];
+          const label = t(STATE_TRANSLATION_KEYS[st]);
           const isWarn = st === 'error' || st === 'empty' || st === 'storage-unavailable';
           const isOk = st === 'success' || st === 'revisited';
           return (
@@ -77,8 +94,8 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
                 color: 'var(--text-light)',
               }}
             >
-              <span aria-hidden="true">{meta.icon} </span>
-              {meta.label}
+              <span aria-hidden="true">{icon} </span>
+              {label}
             </span>
           );
         })}
@@ -109,7 +126,7 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
           <div style={{ flex: '1 1 300px' }}>
             {errorDetail && (
               <p style={{ margin: '0 0 4px 0', fontWeight: 700, color: 'var(--text-light)' }}>
-                <span aria-hidden="true">⚠ Erreur : </span>
+                <span aria-hidden="true">{t('status.errorPrefix')}</span>
                 {errorDetail}
               </p>
             )}
@@ -136,7 +153,7 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
                   fontSize: '0.88rem',
                 }}
               >
-                {retryLabel}
+                {effectiveRetryLabel}
               </button>
             )}
             {onDismissMessage && (
@@ -153,7 +170,7 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
                   fontSize: '0.85rem',
                 }}
               >
-                Fermer le message
+                {t('status.close')}
               </button>
             )}
           </div>

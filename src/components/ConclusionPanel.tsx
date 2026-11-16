@@ -5,8 +5,9 @@ import {
   ContributionValidationErrors,
   Investigation,
 } from '../types/archive';
-import { CONCLUSION_OPTIONS } from '../data/caseC001';
+import { getLocalizedConclusionOptions } from '../data/caseC001';
 import { isSourceAccessible, validateContributionDraft } from '../domain/validation';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ConclusionPanelProps {
   dataset: ArchiveDataset;
@@ -31,13 +32,16 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
   onSubmitContribution,
   onNavigateToMissingBridge,
 }) => {
+  const { locale, t } = useI18n();
+  const conclusionOptions = getLocalizedConclusionOptions(locale);
+
   const [validationErrors, setValidationErrors] = useState<ContributionValidationErrors>({});
   const justificationRef = useRef<HTMLTextAreaElement | null>(null);
   const firstConclusionRadioRef = useRef<HTMLInputElement | null>(null);
   const firstSourceCheckboxRef = useRef<HTMLInputElement | null>(null);
 
   const getConclusionLabel = (val: ConclusionType): string => {
-    return CONCLUSION_OPTIONS.find((o) => o.value === val)?.label ?? val;
+    return conclusionOptions.find((o) => o.value === val)?.label ?? val;
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -55,7 +59,6 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
 
     if (!result.valid) {
       setValidationErrors(result.errors);
-      // M08 / A09: Focus the first invalid control immediately for keyboard recovery
       if (result.errors.conclusionType && firstConclusionRadioRef.current) {
         firstConclusionRadioRef.current.focus();
       } else if (result.errors.justification && justificationRef.current) {
@@ -84,11 +87,10 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
           id="conclusion-panel-heading"
           style={{ fontSize: '1.75rem', margin: '0 0 8px 0', color: 'var(--text-light)' }}
         >
-          Conclusion argumentée &amp; Dépôt au registre local (S05)
+          {t('conclusion.title')}
         </h2>
         <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-          Sélectionnez votre conclusion, rédigez votre justification sans fausse certitude, et
-          reliez les archives effectivement consultées.
+          {t('conclusion.subtitle')}
         </p>
       </div>
 
@@ -118,11 +120,10 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
             }}
           >
             <strong style={{ color: 'var(--archive-amber-bright)', fontSize: '0.95rem' }}>
-              ↺ Verdict réversible (F06 / M06) — Comparaison Avant / Après
+              {t('conclusion.revision.title')}
             </strong>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Vos pièces consultées ({investigation.inspectedSourceIds.join(', ')}) sont intégralement
-              conservées.
+              {t('conclusion.revision.inspected', { ids: investigation.inspectedSourceIds.join(', ') })}
             </span>
           </div>
 
@@ -143,7 +144,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               }}
             >
               <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.76rem' }}>
-                Position précédente :
+                {t('conclusion.revision.previous')}
               </span>
               <strong>{getConclusionLabel(latestRevision.previousConclusion)}</strong>
             </div>
@@ -163,7 +164,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                   fontSize: '0.76rem',
                 }}
               >
-                Nouvelle position active :
+                {t('conclusion.revision.new')}
               </span>
               <strong>{getConclusionLabel(latestRevision.newConclusion)}</strong>
             </div>
@@ -190,7 +191,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               gap: '12px',
             }}
           >
-            <span>{validationErrors.questionRequired}</span>
+            <span>{t('conclusion.error.question')}</span>
             <button
               type="button"
               onClick={onNavigateToMissingBridge}
@@ -204,7 +205,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                 cursor: 'pointer',
               }}
             >
-              Aller au Missing Bridge (S03)
+              {t('conclusion.goToBridge')}
             </button>
           </div>
         )}
@@ -229,7 +230,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               color: 'var(--text-light)',
             }}
           >
-            1. Choisissez votre verdict d’enquête (valeurs autorisées) *
+            {t('conclusion.fieldset1')}
           </legend>
 
           {validationErrors.conclusionType && (
@@ -244,12 +245,12 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                 fontSize: '0.92rem',
               }}
             >
-              ⚠ {validationErrors.conclusionType}
+              ⚠ {t('conclusion.error.type')}
             </p>
           )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {CONCLUSION_OPTIONS.map((option, idx) => {
+            {conclusionOptions.map((option, idx) => {
               const isChecked = investigation.draftConclusionType === option.value;
               return (
                 <label
@@ -339,7 +340,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               color: 'var(--text-light)',
             }}
           >
-            2. Citez les sources documentaires consultées à l’appui de votre conclusion *
+            {t('conclusion.fieldset2')}
           </legend>
 
           {validationErrors.referencedSourceIds && (
@@ -424,10 +425,10 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                       </strong>
                       <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                         {!unlocked
-                          ? 'Verrouillé (nécessite la piste Q001)'
+                          ? t('conclusion.source.locked')
                           : inspected
-                            ? '✓ Pièce consultée — éligible à la citation'
-                            : '○ Non consultée — lisez la pièce pour la citer'}
+                            ? t('conclusion.source.eligible')
+                            : t('conclusion.source.notRead')}
                       </span>
                     </div>
                   </label>
@@ -449,7 +450,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                         cursor: 'pointer',
                       }}
                     >
-                      Consulter {src.id} maintenant
+                      {t('conclusion.source.inspectNow', { id: src.id })}
                     </button>
                   )}
                 </div>
@@ -488,14 +489,13 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                 color: 'var(--text-light)',
               }}
             >
-              3. Justification argumentée de votre conclusion *
+              {t('conclusion.fieldset3')}
             </label>
 
             <button
               type="button"
               onClick={() => {
-                const sampleText =
-                  "Le registre de 1921 évoque un transfert, ce qui rend plausible l'existence de deux événements distincts sans prouver tous les témoignages.";
+                const sampleText = t('conclusion.sampleText');
                 onChangeJustification(sampleText);
                 if (validationErrors.justification) {
                   setValidationErrors((prev) => ({ ...prev, justification: undefined }));
@@ -513,13 +513,12 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                 cursor: 'pointer',
               }}
             >
-              Insérer une trame d’exemple nuancée (modifiable)
+              {t('conclusion.insertSample')}
             </button>
           </div>
 
           <p style={{ margin: '0 0 10px 0', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Expliquez comment les pièces consultées éclairent l’écart entre 1920 et 1922 et ce qui
-            demeure incertain (minimum 15 caractères ; balises HTML neutralisées).
+            {t('conclusion.justificationHelp')}
           </p>
 
           {validationErrors.justification && (
@@ -534,7 +533,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                 fontSize: '0.92rem',
               }}
             >
-              ⚠ {validationErrors.justification}
+              ⚠ {t('conclusion.error.justification')}
             </p>
           )}
 
@@ -554,7 +553,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
             aria-describedby={
               validationErrors.justification ? 'justification-error-msg' : undefined
             }
-            placeholder="Exemple : Le registre technique de 1921 (S003) documente un transfert de la vieille tour vers la nouvelle tour..."
+            placeholder={t('conclusion.justificationPlaceholder')}
             style={{
               width: '100%',
               padding: '12px',
@@ -583,7 +582,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
             }}
           >
             <strong style={{ display: 'block', marginBottom: '4px' }}>
-              ✕ Échec d’écriture dans le stockage local — Aucun faux reçu émis :
+              {t('conclusion.storageError.title')}
             </strong>
             <span>{storageError}</span>
           </div>
@@ -599,8 +598,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
           }}
         >
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Enregistrement vérifié dans le stockage local de démonstration (aucune donnée
-            personnelle demandée).
+            {t('conclusion.savingDisclaimer')}
           </span>
 
           <button
@@ -618,7 +616,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               transition: 'background-color var(--motion-m09)',
             }}
           >
-            Vérifier et enregistrer la contribution →
+            {t('conclusion.submit')}
           </button>
         </div>
       </form>

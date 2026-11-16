@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ArchivalIllustrationProps {
   type: 'old-tower' | 'new-tower' | 'transfer-register';
@@ -6,6 +7,8 @@ interface ArchivalIllustrationProps {
 }
 
 export const ArchivalIllustration: React.FC<ArchivalIllustrationProps> = ({ type, altText }) => {
+  const { t } = useI18n();
+
   return (
     <figure
       style={{
@@ -38,13 +41,13 @@ export const ArchivalIllustration: React.FC<ArchivalIllustrationProps> = ({ type
           <line x1="54" y1="44" x2="57" y2="44" stroke="#172432" strokeWidth="1.5" />
           {/* Archival lines */}
           <text x="102" y="32" fill="#172432" fontSize="11" fontWeight="700" fontFamily="serif">
-            MAIRIE DE MEMORIA • ARCHIVE FICTIVE
+            {t('illus.oldTower.stamp')}
           </text>
           <text x="102" y="51" fill="#33475B" fontSize="12" fontWeight="600" fontFamily="sans-serif">
-            15 JUIN 1920 — VIEILLE TOUR
+            {t('illus.oldTower.date')}
           </text>
           <text x="102" y="70" fill="#5A4628" fontSize="10" fontFamily="monospace">
-            TIMBRE : MEM-ADM-1920-0615 (SPÉCIMEN FICTIF)
+            {t('illus.oldTower.code')}
           </text>
         </svg>
       )}
@@ -70,13 +73,13 @@ export const ArchivalIllustration: React.FC<ArchivalIllustrationProps> = ({ type
           <line x1="48" y1="48" x2="48" y2="43" stroke="#172432" strokeWidth="1.5" />
           <line x1="48" y1="48" x2="52" y2="50" stroke="#172432" strokeWidth="1.5" />
           <text x="84" y="18" fill="#172432" fontSize="11" fontWeight="700" fontFamily="serif">
-            L’ÉCHO DE MEMORIA — ÉDITION FICTIVE DE DÉMONSTRATION
+            {t('illus.newTower.masthead')}
           </text>
           <text x="84" y="48" fill="#172432" fontSize="12" fontWeight="700" fontFamily="sans-serif">
-            04 MAI 1922 — NOUVELLE TOUR CENTRALE
+            {t('illus.newTower.date')}
           </text>
           <text x="84" y="68" fill="#5A4628" fontSize="10" fontFamily="monospace">
-            COUPURE : MEM-PRS-1922-0504 (ARCHIVE FICTIVE)
+            {t('illus.newTower.code')}
           </text>
         </svg>
       )}
@@ -104,13 +107,13 @@ export const ArchivalIllustration: React.FC<ArchivalIllustrationProps> = ({ type
           <rect x="96" y="32" width="22" height="36" fill="none" stroke="#172432" strokeWidth="1.8" />
           <circle cx="107" cy="45" r="5" fill="none" stroke="#172432" strokeWidth="1.5" />
           <text x="132" y="32" fill="#172432" fontSize="11" fontWeight="700" fontFamily="serif">
-            ATELIERS MUNICIPAUX • REGISTRE TECHNIQUE
+            {t('illus.transfer.stamp')}
           </text>
           <text x="132" y="51" fill="#1E5245" fontSize="12" fontWeight="700" fontFamily="sans-serif">
-            12 SEPT. 1921 — DÉMONTAGE &amp; TRANSFERT
+            {t('illus.transfer.date')}
           </text>
           <text x="132" y="70" fill="#5A4628" fontSize="10" fontFamily="monospace">
-            PIÈCE : MEM-TEC-1921-0912 (DOCUMENT FICTIF)
+            {t('illus.transfer.code')}
           </text>
         </svg>
       )}
@@ -125,8 +128,8 @@ export const ArchivalIllustration: React.FC<ArchivalIllustrationProps> = ({ type
           gap: '4px',
         }}
       >
-        <span>Fac-similé schématique — Document fictif d’exercice</span>
-        <span style={{ fontWeight: 600 }}>[Illustration accessible]</span>
+        <span>{t('evidence.ficSimile')}</span>
+        <span style={{ fontWeight: 600 }}>{t('evidence.illustrationA11y')}</span>
       </figcaption>
     </figure>
   );

@@ -83,7 +83,25 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export function useI18n(): I18nContextValue {
   const ctx = useContext(I18nContext);
   if (!ctx) {
-    throw new Error('useI18n must be used within an I18nProvider');
+    // Graceful fallback when rendered without explicit I18nProvider (e.g. in unit tests)
+    const fallbackLocale = DEFAULT_LOCALE;
+    const fallbackConfig = LOCALE_CONFIGS[fallbackLocale];
+    return {
+      locale: fallbackLocale,
+      config: fallbackConfig,
+      setLocale: () => {},
+      t: (key: string, params?: Record<string, string | number>) => {
+        let text = translations[fallbackLocale][key] ?? key;
+        if (params) {
+          for (const [pKey, pVal] of Object.entries(params)) {
+            text = text.replace(new RegExp(`\\{${pKey}\\}`, 'g'), String(pVal));
+          }
+        }
+        return text;
+      },
+      dir: fallbackConfig.dir,
+      isRtl: false,
+    };
   }
   return ctx;
 }

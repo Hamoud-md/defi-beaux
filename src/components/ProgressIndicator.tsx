@@ -1,6 +1,7 @@
 import React from 'react';
 import { FactualProgressSummary } from '../domain/validation';
 import { ViewStepId } from '../types/archive';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ProgressIndicatorProps {
   currentStep: ViewStepId;
@@ -9,24 +10,26 @@ interface ProgressIndicatorProps {
   hasVerifiedReceipt: boolean;
 }
 
-const VIEW_STEPS: { id: ViewStepId; code: string; label: string }[] = [
-  { id: 'S01', code: 'S01', label: 'Accueil / Dossier' },
-  { id: 'S02', code: 'S02', label: 'Comparaison (S001/S002)' },
-  { id: 'S03', code: 'S03', label: 'Missing Bridge (Q001–Q003)' },
-  { id: 'S04', code: 'S04', label: 'Nouvel indice & Analyse' },
-  { id: 'S05', code: 'S05', label: 'Conclusion motivée' },
-  { id: 'S06', code: 'S06', label: 'Reçu local' },
-];
-
 export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
   currentStep,
   onSelectStep,
   progress,
   hasVerifiedReceipt,
 }) => {
+  const { t } = useI18n();
+
+  const viewSteps: { id: ViewStepId; code: string; label: string }[] = [
+    { id: 'S01', code: 'S01', label: t('progress.step.S01') },
+    { id: 'S02', code: 'S02', label: t('progress.step.S02') },
+    { id: 'S03', code: 'S03', label: t('progress.step.S03') },
+    { id: 'S04', code: 'S04', label: t('progress.step.S04') },
+    { id: 'S05', code: 'S05', label: t('progress.step.S05') },
+    { id: 'S06', code: 'S06', label: t('progress.step.S06') },
+  ];
+
   return (
     <section
-      aria-label="Progression factuelle de l’enquête et étapes du dossier"
+      aria-label={t('progress.section')}
       style={{
         backgroundColor: 'var(--archive-ink-elevated)',
         border: '1px solid var(--archive-midnight-border)',
@@ -54,7 +57,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
               color: 'var(--text-light)',
             }}
           >
-            Progression factuelle de l’enquête :
+            {t('progress.label')}
           </span>
           <span
             data-testid="factual-progress-badge"
@@ -70,20 +73,23 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
               borderRadius: '999px',
             }}
           >
-            {progress.completedCount} / {progress.totalCount} jalons vérifiés ({progress.percentage}
-            %)
+            {t('progress.badge', {
+              completed: progress.completedCount,
+              total: progress.totalCount,
+              pct: progress.percentage,
+            })}
           </span>
         </div>
 
         <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          Basée uniquement sur vos actes d’analyse réels (aucun clic décoratif)
+          {t('progress.disclaimer')}
         </span>
       </div>
 
       {/* Progress bar */}
       <div
         role="progressbar"
-        aria-label="Jalons d’enquête accomplis"
+        aria-label={t('progress.bar.label')}
         aria-valuenow={progress.percentage}
         aria-valuemin={0}
         aria-valuemax={100}
@@ -147,7 +153,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
       </ul>
 
       {/* Step navigation S01–S06 */}
-      <nav aria-label="Navigation des vues de l’enquête (S01 à S06)">
+      <nav aria-label={t('progress.nav.label')}>
         <div
           style={{
             display: 'flex',
@@ -155,7 +161,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
             gap: '8px',
           }}
         >
-          {VIEW_STEPS.map((step) => {
+          {viewSteps.map((step) => {
             const isCurrent = currentStep === step.id;
             const isReceiptLocked = step.id === 'S06' && !hasVerifiedReceipt;
             return (
@@ -198,7 +204,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                 {step.label}
                 {isReceiptLocked && (
                   <span style={{ fontSize: '0.73rem', display: 'block', opacity: 0.75 }}>
-                    (Après sauvegarde vérifiée)
+                    {t('progress.afterSave')}
                   </span>
                 )}
               </button>

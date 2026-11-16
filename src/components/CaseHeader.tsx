@@ -1,6 +1,6 @@
 import React from 'react';
 import { Case, InteractionMode } from '../types/archive';
-import { FICTIONAL_WARNING_BADGE } from '../data/caseC001';
+import { useI18n, LOCALE_CONFIGS, Locale } from '../i18n/I18nContext';
 
 interface CaseHeaderProps {
   caseData: Case;
@@ -19,6 +19,8 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
   onToggleInteractionMode,
   onResetSession,
 }) => {
+  const { locale, setLocale, t } = useI18n();
+
   return (
     <header
       style={{
@@ -53,7 +55,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
               letterSpacing: '0.02em',
             }}
           >
-            <span aria-hidden="true">◆</span> {FICTIONAL_WARNING_BADGE}
+            <span aria-hidden="true">◆</span> {t('badge.fictional')}
           </span>
 
           <span
@@ -66,15 +68,58 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
               borderRadius: '999px',
             }}
           >
-            Dossier <strong>{caseData.id}</strong> • {caseData.city}
+            {t('header.casePrefix')} <strong>{caseData.id}</strong> • {caseData.city}
           </span>
         </div>
 
         <div
           role="toolbar"
-          aria-label="Options d’accessibilité et de mode d’enquête"
+          aria-label={t('header.a11y.toolbar')}
           style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}
         >
+          {/* Language Selector: Français, English, العربية */}
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              backgroundColor: 'var(--archive-midnight)',
+              border: '1px solid var(--archive-amber-bright)',
+              borderRadius: 'var(--radius-control)',
+              padding: '2px 4px',
+              gap: '4px',
+            }}
+            aria-label={t('header.lang')}
+          >
+            <span style={{ fontSize: '0.8rem', paddingLeft: '6px', paddingRight: '6px', color: 'var(--archive-amber-bright)', fontWeight: 700 }}>
+              🌐
+            </span>
+            {(['fr', 'en', 'ar'] as Locale[]).map((loc) => {
+              const active = locale === loc;
+              return (
+                <button
+                  key={loc}
+                  type="button"
+                  onClick={() => setLocale(loc)}
+                  aria-pressed={active}
+                  data-testid={`lang-btn-${loc}`}
+                  style={{
+                    backgroundColor: active ? 'var(--archive-amber)' : 'transparent',
+                    color: active ? 'var(--archive-ink)' : 'var(--text-light)',
+                    fontWeight: active ? 700 : 500,
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '4px 10px',
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {LOCALE_CONFIGS[loc].nativeLabel}
+                </button>
+              );
+            })}
+          </div>
+
           <button
             type="button"
             onClick={onToggleReducedMotion}
@@ -91,7 +136,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
               transition: 'background-color var(--motion-m09)',
             }}
           >
-            {reducedMotion ? '✓ Mouvement réduit : Actif' : 'Mouvement réduit : Désactivé'}
+            {reducedMotion ? t('header.reducedMotion.active') : t('header.reducedMotion.off')}
           </button>
 
           <button
@@ -111,13 +156,13 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
               fontWeight: 500,
               cursor: 'pointer',
             }}
-            title="Basculer entre la Signature Interaction (The Missing Bridge) et le mode Comparaison guidée classique (Fallback A23)"
+            title={t('header.mode.tooltip')}
           >
-            Mode :{' '}
+            {t('header.mode.label')}{' '}
             <strong>
               {interactionMode === 'missing-bridge'
-                ? 'Signature (The Missing Bridge)'
-                : 'Fallback (Comparaison guidée)'}
+                ? t('header.mode.signature')
+                : t('header.mode.fallback')}
             </strong>
           </button>
 
@@ -134,7 +179,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
               cursor: 'pointer',
             }}
           >
-            Réinitialiser l’enquête
+            {t('header.reset')}
           </button>
         </div>
       </div>
@@ -159,7 +204,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
               fontWeight: 600,
             }}
           >
-            THE MEMORY CITY • THE ECHO DETECTIVE
+            {t('app.supertitle')}
           </p>
           <h1
             style={{

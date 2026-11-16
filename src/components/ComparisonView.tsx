@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Source } from '../types/archive';
 import { EvidenceDocument } from './EvidenceDocument';
 import { EvidenceDetail } from './EvidenceDetail';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ComparisonViewProps {
   sources: Source[];
@@ -18,6 +19,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   onProceedToBridge,
   onBackToDiscovery,
 }) => {
+  const { t } = useI18n();
   const [activeDetailId, setActiveDetailId] = useState<string | null>(null);
 
   const s001 = sources.find((s) => s.id === 'S001') ?? null;
@@ -46,18 +48,17 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           id="comparison-title"
           style={{ fontSize: '1.75rem', margin: '0 0 8px 0', color: 'var(--text-light)' }}
         >
-          Étape S02 — Comparaison des deux documents initiaux
+          {t('comparison.title')}
         </h2>
         <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-          Examinez les deux pièces archivistiques conservées à la mairie de Memoria. Observez leurs
-          dates, leurs cotes et les édifices mentionnés.
+          {t('comparison.subtitle')}
         </p>
       </div>
 
       {/* Discrepancy Callout Banner */}
       <div
         role="region"
-        aria-label="Contradiction apparente entre S001 et S002"
+        aria-label={t('comparison.discrepancy.title')}
         style={{
           backgroundColor: 'rgba(197, 138, 69, 0.14)',
           border: '2px solid var(--archive-amber)',
@@ -84,7 +85,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               gap: '8px',
             }}
           >
-            <span>⚖</span> La contradiction apparente à examiner :
+            <span>⚖</span> {t('comparison.discrepancy.title')}
           </strong>
           <span
             style={{
@@ -102,16 +103,15 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             }}
           >
             {bothInspected
-              ? '✓ 2/2 sources initiales examinées'
-              : `○ ${inspectedSourceIds.filter((id) => id === 'S001' || id === 'S002').length}/2 sources consultées`}
+              ? t('comparison.bothExamined')
+              : t('comparison.examined', {
+                  n: inspectedSourceIds.filter((id) => id === 'S001' || id === 'S002').length,
+                })}
           </span>
         </div>
 
         <p style={{ margin: 0, fontSize: '0.96rem', color: 'var(--text-light)', lineHeight: 1.5 }}>
-          D’un côté, la <strong>Lettre municipale (S001)</strong> évoque une inauguration le{' '}
-          <strong>15 juin 1920</strong> sur la <em>vieille tour</em>. De l'autre, le{' '}
-          <strong>Journal local (S002)</strong> relate que les citoyens découvrent pour la première
-          fois l’horloge le <strong>4 mai 1922</strong> sur la <em>nouvelle tour</em>.
+          {t('comparison.discrepancy.text')}
         </p>
       </div>
 
@@ -177,7 +177,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             cursor: 'pointer',
           }}
         >
-          ← Retour à l’accueil du dossier
+          {t('comparison.back')}
         </button>
 
         <button
@@ -196,7 +196,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             boxShadow: '0 4px 12px rgba(197, 138, 69, 0.25)',
           }}
         >
-          Passer au Missing Bridge (Identifier ce qu'il manque) →
+          {t('comparison.proceed')}
         </button>
       </div>
     </section>

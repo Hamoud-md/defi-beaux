@@ -4,6 +4,7 @@ import {
   EvidenceRelationType,
   Hypothesis,
 } from '../types/archive';
+import { useI18n } from '../i18n/I18nContext';
 
 interface HypothesisStateProps {
   dataset: ArchiveDataset;
@@ -15,40 +16,6 @@ interface HypothesisStateProps {
   onProceedToConclusion: () => void;
 }
 
-const RELATION_TYPE_META: Record<
-  EvidenceRelationType,
-  { badgeLabel: string; description: string; color: string; bg: string }
-> = {
-  supports: {
-    badgeLabel: 'supports (Soutient)',
-    description:
-      'La pièce apporte un élément matériel ou chronologique compatible avec l’hypothèse, sans nécessairement tout démontrer à elle seule.',
-    color: 'var(--archive-teal-bright)',
-    bg: 'var(--archive-teal-surface)',
-  },
-  challenges: {
-    badgeLabel: 'challenges (Met en difficulté)',
-    description:
-      'La pièce contredit directement un présupposé de l’hypothèse (par exemple l’unicité de lieu ou d’événement).',
-    color: 'var(--archive-crimson)',
-    bg: 'var(--archive-crimson-surface)',
-  },
-  insufficient: {
-    badgeLabel: 'insufficient (Preuve insuffisante)',
-    description:
-      'La pièce est authentique dans le dossier mais ne contient pas assez d’informations pour prouver une généralisation.',
-    color: 'var(--archive-amber-bright)',
-    bg: 'var(--archive-amber-surface)',
-  },
-  unrelated: {
-    badgeLabel: 'unrelated (Sans lien probant autonome)',
-    description:
-      'Prise isolément, la pièce ne permet ni d’appuyer ni de réfuter l’affirmation visée.',
-    color: 'var(--text-muted)',
-    bg: 'rgba(32, 53, 73, 0.65)',
-  },
-};
-
 export const HypothesisState: React.FC<HypothesisStateProps> = ({
   dataset,
   inspectedSourceIds,
@@ -58,6 +25,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
   onInspectSource,
   onProceedToConclusion,
 }) => {
+  const { t } = useI18n();
   const [filterType, setFilterType] = useState<EvidenceRelationType | 'ALL'>('ALL');
   const isS003Unlocked = exploredQuestionIds.includes('Q001');
 
@@ -70,12 +38,42 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
 
   const getHypothesisBadge = (h: Hypothesis) => {
     if (h.status === 'plausible') {
-      return { text: 'Hypothèse plausible (non absolue)', bg: '#235E51' };
+      return { text: t('hypothesis.badge.plausible'), bg: '#235E51' };
     }
     if (h.status === 'challenged') {
-      return { text: 'Hypothèse contredite par S003', bg: '#7A2E2E' };
+      return { text: t('hypothesis.badge.challenged'), bg: '#7A2E2E' };
     }
-    return { text: 'Prudence épistémique maintenue', bg: '#5A4628' };
+    return { text: t('hypothesis.badge.open'), bg: '#5A4628' };
+  };
+
+  const relationTypeMeta: Record<
+    EvidenceRelationType,
+    { badgeLabel: string; description: string; color: string; bg: string }
+  > = {
+    supports: {
+      badgeLabel: t('hypothesis.rel.supports'),
+      description: t('hypothesis.rel.supports.desc'),
+      color: 'var(--archive-teal-bright)',
+      bg: 'var(--archive-teal-surface)',
+    },
+    challenges: {
+      badgeLabel: t('hypothesis.rel.challenges'),
+      description: t('hypothesis.rel.challenges.desc'),
+      color: 'var(--archive-crimson)',
+      bg: 'var(--archive-crimson-surface)',
+    },
+    insufficient: {
+      badgeLabel: t('hypothesis.rel.insufficient'),
+      description: t('hypothesis.rel.insufficient.desc'),
+      color: 'var(--archive-amber-bright)',
+      bg: 'var(--archive-amber-surface)',
+    },
+    unrelated: {
+      badgeLabel: t('hypothesis.rel.unrelated'),
+      description: t('hypothesis.rel.unrelated.desc'),
+      color: 'var(--text-muted)',
+      bg: 'rgba(32, 53, 73, 0.65)',
+    },
   };
 
   return (
@@ -89,12 +87,10 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
           id="hypothesis-reasoning-heading"
           style={{ fontSize: '1.75rem', margin: '0 0 8px 0', color: 'var(--text-light)' }}
         >
-          Raisonnement sur preuves — Portée et limites des indices (F05)
+          {t('hypothesis.title')}
         </h2>
         <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-          Examinez comment chaque archive se rapporte aux hypothèses{' '}
-          <strong>H001</strong>, <strong>H002</strong> et <strong>H003</strong>. Une preuve peut
-          soutenir une piste tout en restant insuffisante pour certifier tous les témoignages.
+          {t('hypothesis.subtitle')}
         </p>
       </div>
 
@@ -109,15 +105,13 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
             marginBottom: '20px',
           }}
         >
-          <strong>Note d’enquête :</strong> Vous n’avez pas encore activé la question pertinente{' '}
-          <code>Q001</code> sur le <em>Missing Bridge</em>. Certaines relations impliquant le
-          registre <code>S003</code> nécessitent d’ouvrir cette piste.
+          <strong>{t('hypothesis.needQ001')}</strong> {t('hypothesis.needQ001.text')}
         </div>
       )}
 
       {/* Legend of the 4 EvidenceRelation types (F05 requirement) */}
       <div
-        aria-label="Lexique des 4 types de relations documentaires"
+        aria-label={t('hypothesis.legendTitle')}
         style={{
           backgroundColor: 'var(--archive-ink-elevated)',
           border: '1px solid var(--archive-midnight-border)',
@@ -137,7 +131,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
           }}
         >
           <strong style={{ fontSize: '0.95rem' }}>
-            Qualification des relations preuve / hypothèse (F05) :
+            {t('hypothesis.legendTitle')}
           </strong>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             <button
@@ -156,29 +150,29 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                 cursor: 'pointer',
               }}
             >
-              Toutes ({dataset.relations.length})
+              {t('hypothesis.filterAll', { n: dataset.relations.length })}
             </button>
             {(['supports', 'challenges', 'insufficient', 'unrelated'] as EvidenceRelationType[]).map(
-              (t) => (
+              (tKey) => (
                 <button
-                  key={t}
+                  key={tKey}
                   type="button"
-                  onClick={() => setFilterType(t)}
-                  aria-pressed={filterType === t}
-                  data-testid={`filter-relation-${t}`}
+                  onClick={() => setFilterType(tKey)}
+                  aria-pressed={filterType === tKey}
+                  data-testid={`filter-relation-${tKey}`}
                   style={{
                     padding: '4px 10px',
                     borderRadius: '6px',
                     border: '1px solid var(--archive-midnight-border)',
                     backgroundColor:
-                      filterType === t ? 'var(--archive-amber)' : 'var(--archive-midnight)',
-                    color: filterType === t ? 'var(--archive-ink)' : 'var(--text-light)',
+                      filterType === tKey ? 'var(--archive-amber)' : 'var(--archive-midnight)',
+                    color: filterType === tKey ? 'var(--archive-ink)' : 'var(--text-light)',
                     fontWeight: 600,
                     fontSize: '0.8rem',
                     cursor: 'pointer',
                   }}
                 >
-                  {t}
+                  {tKey}
                 </button>
               )
             )}
@@ -193,9 +187,9 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
           }}
         >
           {(
-            Object.entries(RELATION_TYPE_META) as [
+            Object.entries(relationTypeMeta) as [
               EvidenceRelationType,
-              (typeof RELATION_TYPE_META)[EvidenceRelationType],
+              (typeof relationTypeMeta)[EvidenceRelationType],
             ][]
           ).map(([key, meta]) => (
             <div
@@ -220,7 +214,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
 
       {/* Hypotheses Overview Cards (H001, H002, H003) */}
       <h3 style={{ fontSize: '1.35rem', marginBottom: '12px' }}>
-        État des hypothèses du dossier C001
+        {t('hypothesis.stateTitle')}
       </h3>
       <div
         style={{
@@ -294,7 +288,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                   color: 'var(--text-muted)',
                 }}
               >
-                <strong>Nuance :</strong> {hyp.epistemicNote}
+                <strong>{t('hypothesis.nuance')}</strong> {hyp.epistemicNote}
               </div>
             </article>
           );
@@ -303,13 +297,13 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
 
       {/* Evidence Relations Evaluation List (ER001–ER005) */}
       <h3 style={{ fontSize: '1.35rem', marginBottom: '12px' }}>
-        Évaluation détaillée des relations Preuve ↔ Hypothèse
+        {t('hypothesis.relEvalTitle')}
       </h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
         {visibleRelations.map((rel) => {
           const source = dataset.sources.find((s) => s.id === rel.sourceId);
           const hypothesis = dataset.hypotheses.find((h) => h.id === rel.hypothesisId);
-          const meta = RELATION_TYPE_META[rel.relationType];
+          const meta = relationTypeMeta[rel.relationType];
           const isEvaluated = evaluatedRelationIds.includes(rel.id);
           const isSourceRead = inspectedSourceIds.includes(rel.sourceId);
 
@@ -349,7 +343,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                     [{rel.id}]
                   </span>
                   <strong>
-                    Source {rel.sourceId} ({source?.title}, {source?.date})
+                    {source?.title} ({source?.date})
                   </strong>
                   <span
                     style={{
@@ -365,7 +359,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                     {rel.relationLabel}
                   </span>
                   <strong>
-                    → {rel.hypothesisId} ({hypothesis?.title})
+                    → {hypothesis?.title}
                   </strong>
                 </div>
 
@@ -384,7 +378,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                         cursor: 'pointer',
                       }}
                     >
-                      Lire {rel.sourceId}
+                      {t('hypothesis.readSource', { id: rel.sourceId })}
                     </button>
                   )}
                   <button
@@ -410,13 +404,13 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                       cursor: 'pointer',
                     }}
                   >
-                    {isEvaluated ? '✓ Relation validée dans l’analyse' : 'Retenir cette analyse'}
+                    {isEvaluated ? t('hypothesis.evalBtn.done') : t('hypothesis.evalBtn.pending')}
                   </button>
                 </div>
               </div>
 
               <p style={{ margin: 0, fontSize: '0.94rem', color: 'var(--text-light)' }}>
-                <strong>Justification analytique :</strong> {rel.rationale}
+                <strong>{t('hypothesis.rationale')}</strong> {rel.rationale}
               </p>
             </div>
           );
@@ -439,7 +433,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
             cursor: 'pointer',
           }}
         >
-          Formuler la conclusion motivée (Étape S05) →
+          {t('hypothesis.proceedS05')}
         </button>
       </div>
     </section>
