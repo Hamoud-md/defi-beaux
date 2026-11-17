@@ -32,6 +32,7 @@ import {
 import { CaseHeader } from './components/CaseHeader';
 import { ProgressIndicator } from './components/ProgressIndicator';
 import { StatusMessage } from './components/StatusMessage';
+import { ClockTowerScene } from './components/ClockTowerScene';
 import { DiscoveryView } from './components/DiscoveryView';
 import { ComparisonView } from './components/ComparisonView';
 import { MissingBridge } from './components/MissingBridge';
@@ -233,6 +234,9 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-container" data-testid="app-root">
+        {/* The Forgotten Clock Tower — decorative night backdrop */}
+        <ClockTowerScene />
+
         {/* Skip link for keyboard users (A10) */}
         <a href="#main-content" className="skip-link">
           {t('skip.link')}
@@ -406,7 +410,7 @@ export const App: React.FC = () => {
       <footer
         style={{
           marginTop: '60px',
-          borderTop: '1px solid var(--archive-midnight-border)',
+          borderTop: '1px solid rgba(224, 167, 95, 0.18)',
           paddingTop: '24px',
           fontSize: '0.86rem',
           color: 'var(--text-muted)',
@@ -425,77 +429,92 @@ export const App: React.FC = () => {
           }}
         >
           <div>
-            <strong>{t('app.footer.title')}</strong> — {t('app.footer.challenge')}
+            <strong style={{ color: 'var(--text-light)' }}>{t('app.footer.title')}</strong> —{' '}
+            {t('app.footer.challenge')}
             <br />
             {t('app.footer.disclaimer')}
           </div>
+        </div>
 
-          {/* Test Utilities Toolbar (A20, A21, A22 verification tools) */}
-          <div
-            role="toolbar"
-            aria-label="Outils de test et validation QA"
+        {/* Test Utilities Toolbar (A20, A21, A22 verification tools) */}
+        <div
+          role="toolbar"
+          aria-label="Outils de test et validation QA"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 12px',
+            borderRadius: 'var(--radius-control)',
+            border: '1px dashed rgba(120, 160, 200, 0.22)',
+            backgroundColor: 'rgba(7, 12, 20, 0.45)',
+          }}
+        >
+          <span
             style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '8px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: 'var(--text-muted)',
             }}
           >
-            <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>Outils de test :</span>
-            <button
-              type="button"
-              onClick={handleToggleStorageSimulation}
-              aria-pressed={storageSimulatedDown}
-              data-testid="toggle-storage-fail-btn"
-              style={{
-                backgroundColor: storageSimulatedDown
-                  ? 'var(--archive-crimson)'
-                  : 'var(--archive-midnight)',
-                color: 'var(--text-light)',
-                border: '1px solid var(--archive-midnight-border)',
-                borderRadius: '6px',
-                padding: '4px 10px',
-                fontSize: '0.78rem',
-                cursor: 'pointer',
-              }}
-            >
-              {storageSimulatedDown ? '✕ Simuler panne stockage : ON' : 'Simuler panne stockage (A22)'}
-            </button>
+            {t('test.label')}
+          </span>
+          <button
+            type="button"
+            onClick={handleToggleStorageSimulation}
+            aria-pressed={storageSimulatedDown}
+            data-testid="toggle-storage-fail-btn"
+            style={{
+              backgroundColor: storageSimulatedDown
+                ? 'var(--archive-crimson)'
+                : 'rgba(7, 12, 20, 0.7)',
+              color: 'var(--text-light)',
+              border: '1px solid var(--archive-midnight-border)',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              fontSize: '0.76rem',
+              cursor: 'pointer',
+            }}
+          >
+            {storageSimulatedDown ? '✕ Simuler panne stockage : ON' : 'Simuler panne stockage (A22)'}
+          </button>
 
-            <button
-              type="button"
-              onClick={() => setCurrentDataset(EMPTY_ARCHIVE_DATASET)}
-              data-testid="load-empty-dataset-btn"
-              style={{
-                backgroundColor: 'var(--archive-midnight)',
-                color: 'var(--text-light)',
-                border: '1px solid var(--archive-midnight-border)',
-                borderRadius: '6px',
-                padding: '4px 10px',
-                fontSize: '0.78rem',
-                cursor: 'pointer',
-              }}
-            >
-              Tester Dataset vide (A21)
-            </button>
+          <button
+            type="button"
+            onClick={() => setCurrentDataset(EMPTY_ARCHIVE_DATASET)}
+            data-testid="load-empty-dataset-btn"
+            style={{
+              backgroundColor: 'rgba(7, 12, 20, 0.7)',
+              color: 'var(--text-light)',
+              border: '1px solid var(--archive-midnight-border)',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              fontSize: '0.76rem',
+              cursor: 'pointer',
+            }}
+          >
+            {t('test.emptyDataset')}
+          </button>
 
-            <button
-              type="button"
-              onClick={() => setCurrentDataset(BROKEN_REFERENCE_DATASET)}
-              data-testid="load-broken-dataset-btn"
-              style={{
-                backgroundColor: 'var(--archive-midnight)',
-                color: 'var(--text-light)',
-                border: '1px solid var(--archive-midnight-border)',
-                borderRadius: '6px',
-                padding: '4px 10px',
-                fontSize: '0.78rem',
-                cursor: 'pointer',
-              }}
-            >
-              Tester Réf. rompue (A20)
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setCurrentDataset(BROKEN_REFERENCE_DATASET)}
+            data-testid="load-broken-dataset-btn"
+            style={{
+              backgroundColor: 'rgba(7, 12, 20, 0.7)',
+              color: 'var(--text-light)',
+              border: '1px solid var(--archive-midnight-border)',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              fontSize: '0.76rem',
+              cursor: 'pointer',
+            }}
+          >
+            {t('test.brokenDataset')}
+          </button>
         </div>
       </footer>
     </div>

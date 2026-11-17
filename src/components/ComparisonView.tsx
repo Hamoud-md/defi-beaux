@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Source } from '../types/archive';
 import { EvidenceDocument } from './EvidenceDocument';
 import { EvidenceDetail } from './EvidenceDetail';
+import { Deck3D } from './threeD/Deck3D';
+import { SceneShell } from './SceneShell';
 import { useI18n } from '../i18n/I18nContext';
 
 interface ComparisonViewProps {
@@ -36,34 +38,23 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
   const activeSourceForDetail = sources.find((s) => s.id === activeDetailId) ?? null;
 
   return (
-    <section
-      aria-labelledby="comparison-title"
-      data-testid="comparison-view-section"
-      className="animate-entry"
-      style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+    <SceneShell
+      chapter={t('scene.chapter.II')}
+      title={t('comparison.title')}
+      lede={t('comparison.subtitle')}
+      titleId="comparison-title"
+      testId="comparison-view-section"
     >
-      {/* Header and Discrepancy Framing */}
-      <div>
-        <h2
-          id="comparison-title"
-          style={{ fontSize: '1.75rem', margin: '0 0 8px 0', color: 'var(--text-light)' }}
-        >
-          {t('comparison.title')}
-        </h2>
-        <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-          {t('comparison.subtitle')}
-        </p>
-      </div>
-
       {/* Discrepancy Callout Banner */}
       <div
         role="region"
         aria-label={t('comparison.discrepancy.title')}
+        className="archive-card"
+        data-state="neutral"
         style={{
-          backgroundColor: 'rgba(197, 138, 69, 0.14)',
-          border: '2px solid var(--archive-amber)',
-          borderRadius: 'var(--radius-card)',
+          borderColor: 'rgba(224, 167, 95, 0.45)',
           padding: '18px 22px',
+          marginBottom: '20px',
         }}
       >
         <div
@@ -85,23 +76,13 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
               gap: '8px',
             }}
           >
-            <span>⚖</span> {t('comparison.discrepancy.title')}
+            <span aria-hidden="true">⚖</span> {t('comparison.discrepancy.title')}
           </strong>
           <span
-            style={{
-              fontSize: '0.82rem',
-              padding: '3px 10px',
-              borderRadius: '999px',
-              backgroundColor: bothInspected
-                ? 'var(--archive-teal-surface)'
-                : 'var(--archive-midnight)',
-              border: bothInspected
-                ? '1px solid var(--archive-teal-bright)'
-                : '1px solid var(--archive-midnight-border)',
-              color: bothInspected ? 'var(--text-light)' : 'var(--text-muted)',
-              fontWeight: 600,
-            }}
+            className="state-chip"
+            data-tone={bothInspected ? 'revealed' : 'neutral'}
           >
+            <span aria-hidden="true">{bothInspected ? '✓' : '○'}</span>
             {bothInspected
               ? t('comparison.bothExamined')
               : t('comparison.examined', {
@@ -110,37 +91,57 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
           </span>
         </div>
 
-        <p style={{ margin: 0, fontSize: '0.96rem', color: 'var(--text-light)', lineHeight: 1.5 }}>
+        <p style={{ margin: 0, fontSize: '0.96rem', color: 'var(--text-light)', lineHeight: 1.55 }}>
           {t('comparison.discrepancy.text')}
         </p>
       </div>
 
-      {/* Two Claim Comparison Cards side-by-side */}
+      {/* Two Claim Comparison Cards side-by-side — rendered as a 3D deck of
+          archival documents so the reader physically compares two depths */}
       <div
+        className="scene__panel"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '20px',
-          alignItems: 'stretch',
+          padding: '16px 12px 20px',
+          marginBottom: '20px',
         }}
       >
-        {s001 && (
-          <EvidenceDocument
-            source={s001}
-            isInspected={inspectedSourceIds.includes(s001.id)}
-            isFocusedDetail={activeDetailId === s001.id}
-            onInspect={handleInspect}
-          />
-        )}
-
-        {s002 && (
-          <EvidenceDocument
-            source={s002}
-            isInspected={inspectedSourceIds.includes(s002.id)}
-            isFocusedDetail={activeDetailId === s002.id}
-            onInspect={handleInspect}
-          />
-        )}
+        <Deck3D
+          cards={[
+            ...(s001
+              ? [
+                  {
+                    id: s001.id,
+                    node: (
+                      <EvidenceDocument
+                        source={s001}
+                        isInspected={inspectedSourceIds.includes(s001.id)}
+                        isFocusedDetail={activeDetailId === s001.id}
+                        onInspect={handleInspect}
+                      />
+                    ),
+                  },
+                ]
+              : []),
+            ...(s002
+              ? [
+                  {
+                    id: s002.id,
+                    node: (
+                      <EvidenceDocument
+                        source={s002}
+                        isInspected={inspectedSourceIds.includes(s002.id)}
+                        isFocusedDetail={activeDetailId === s002.id}
+                        onInspect={handleInspect}
+                      />
+                    ),
+                  },
+                ]
+              : []),
+          ]}
+          activeId={activeDetailId}
+          ariaLabel={t('card3d.deck.sources')}
+          dataTestId="evidence-documents-deck"
+        />
       </div>
 
       {/* Active Detailed Inspection Drawer / Panel */}
@@ -193,12 +194,12 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({
             borderRadius: 'var(--radius-control)',
             border: 'none',
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(197, 138, 69, 0.25)',
+            boxShadow: '0 6px 18px rgba(197, 138, 69, 0.28)',
           }}
         >
           {t('comparison.proceed')}
         </button>
       </div>
-    </section>
+    </SceneShell>
   );
 };

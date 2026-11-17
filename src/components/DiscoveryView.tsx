@@ -1,6 +1,8 @@
 import React from 'react';
 import { Case } from '../types/archive';
 import { useI18n } from '../i18n/I18nContext';
+import { useTilt3D } from './threeD/motion';
+import { SceneShell } from './SceneShell';
 
 interface DiscoveryViewProps {
   caseData: Case;
@@ -13,26 +15,23 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
   onStartInvestigation,
 }) => {
   const { t, isRtl } = useI18n();
+  const heroRef = useTilt3D<HTMLDivElement>(true, { maxY: 5, maxX: 4 });
 
   return (
-    <section
-      aria-labelledby="discovery-title"
-      data-testid="discovery-view-section"
-      className="animate-entry"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-      }}
+    <SceneShell
+      chapter={t('scene.chapter.I')}
+      title={`${t('header.casePrefix')} ${caseData.id} — ${caseData.title}`}
+      lede={caseData.promise}
+      titleId="discovery-title"
+      testId="discovery-view-section"
     >
-      {/* Intro hero card */}
+      {/* Intro hero card — volumetric tilt reacting to the pointer */}
       <div
+        ref={heroRef}
+        className="tilt-surface scene__panel"
         style={{
-          backgroundColor: 'var(--archive-ink-elevated)',
-          border: '1px solid var(--archive-midnight-border)',
-          borderRadius: 'var(--radius-card)',
-          padding: '28px',
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+          borderRadius: 'var(--radius-scene)',
+          padding: 'clamp(20px, 3vw, 34px)',
         }}
       >
         <div
@@ -43,7 +42,7 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
             backgroundColor: 'var(--archive-amber)',
             color: 'var(--archive-ink)',
             fontWeight: 700,
-            fontSize: '0.86rem',
+            fontSize: '0.82rem',
             padding: '5px 14px',
             borderRadius: '999px',
             marginBottom: '16px',
@@ -53,20 +52,9 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
           {t('badge.fictional')}
         </div>
 
-        <h2
-          id="discovery-title"
-          style={{
-            fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
-            color: 'var(--text-light)',
-            marginBottom: '14px',
-          }}
-        >
-          {t('header.casePrefix')} {caseData.id} — {caseData.title}
-        </h2>
-
         <p
           style={{
-            fontSize: '1.2rem',
+            fontSize: 'clamp(1.15rem, 2.2vw, 1.45rem)',
             fontFamily: 'var(--font-serif)',
             color: 'var(--archive-amber-bright)',
             marginBottom: '20px',
@@ -85,12 +73,9 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
           }}
         >
           <div
-            style={{
-              backgroundColor: 'var(--archive-midnight)',
-              padding: '18px',
-              borderRadius: 'var(--radius-control)',
-              border: '1px solid var(--archive-midnight-border)',
-            }}
+            className="archive-card"
+            data-state="neutral"
+            style={{ padding: '18px' }}
           >
             <h3
               style={{
@@ -102,7 +87,9 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
                 gap: '8px',
               }}
             >
-              <span style={{ color: 'var(--archive-amber-bright)' }}>✦</span>
+              <span style={{ color: 'var(--archive-amber-bright)' }} aria-hidden="true">
+                ✦
+              </span>
               {t('discovery.context')}
             </h3>
             <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.98rem' }}>
@@ -111,12 +98,9 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
           </div>
 
           <div
-            style={{
-              backgroundColor: 'var(--archive-midnight)',
-              padding: '18px',
-              borderRadius: 'var(--radius-control)',
-              border: '1px solid var(--archive-midnight-border)',
-            }}
+            className="archive-card"
+            data-state="neutral"
+            style={{ padding: '18px' }}
           >
             <h3
               style={{
@@ -128,7 +112,9 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
                 gap: '8px',
               }}
             >
-              <span style={{ color: 'var(--archive-teal-bright)' }}>✦</span>
+              <span style={{ color: 'var(--archive-teal-bright)' }} aria-hidden="true">
+                ✦
+              </span>
               {t('discovery.objective')}
             </h3>
             <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.98rem' }}>
@@ -140,7 +126,7 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
         {/* Methodological notice */}
         <div
           style={{
-            backgroundColor: 'rgba(58, 140, 121, 0.12)',
+            backgroundColor: 'rgba(58, 140, 121, 0.14)',
             border: '1px solid var(--archive-teal)',
             borderRadius: 'var(--radius-control)',
             padding: '16px 20px',
@@ -194,8 +180,8 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '10px',
-              boxShadow: '0 4px 14px rgba(197, 138, 69, 0.35)',
-              transition: 'background-color var(--motion-m09)',
+              boxShadow: '0 6px 22px rgba(197, 138, 69, 0.35)',
+              transition: 'background-color var(--motion-m09), transform var(--motion-m09)',
             }}
           >
             <span>{t('discovery.cta')}</span>
@@ -203,6 +189,6 @@ export const DiscoveryView: React.FC<DiscoveryViewProps> = ({
           </button>
         </div>
       </div>
-    </section>
+    </SceneShell>
   );
 };

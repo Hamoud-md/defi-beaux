@@ -5,6 +5,9 @@ import {
   Hypothesis,
 } from '../types/archive';
 import { useI18n } from '../i18n/I18nContext';
+import { Deck3D } from './threeD/Deck3D';
+import { SceneShell } from './SceneShell';
+import { stripTechnicalSuffix, stripIdParentheticals } from '../utils/labels';
 
 interface HypothesisStateProps {
   dataset: ArchiveDataset;
@@ -38,12 +41,12 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
 
   const getHypothesisBadge = (h: Hypothesis) => {
     if (h.status === 'plausible') {
-      return { text: t('hypothesis.badge.plausible'), bg: '#235E51' };
+      return { text: t('hypothesis.badge.plausible'), bg: '#235E51', tone: 'revealed' as const };
     }
     if (h.status === 'challenged') {
-      return { text: t('hypothesis.badge.challenged'), bg: '#7A2E2E' };
+      return { text: t('hypothesis.badge.challenged'), bg: '#7A2E2E', tone: 'weak' as const };
     }
-    return { text: t('hypothesis.badge.open'), bg: '#5A4628' };
+    return { text: t('hypothesis.badge.open'), bg: '#5A4628', tone: 'neutral' as const };
   };
 
   const relationTypeMeta: Record<
@@ -77,48 +80,33 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
   };
 
   return (
-    <section
-      aria-labelledby="hypothesis-reasoning-heading"
-      data-testid="hypothesis-state-section"
-      className="animate-entry"
+    <SceneShell
+      chapter={t('scene.chapter.IV')}
+      title={t('hypothesis.title')}
+      lede={t('hypothesis.subtitle')}
+      titleId="hypothesis-reasoning-heading"
+      testId="hypothesis-state-section"
     >
-      <div style={{ marginBottom: '20px' }}>
-        <h2
-          id="hypothesis-reasoning-heading"
-          style={{ fontSize: '1.75rem', margin: '0 0 8px 0', color: 'var(--text-light)' }}
-        >
-          {t('hypothesis.title')}
-        </h2>
-        <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-          {t('hypothesis.subtitle')}
-        </p>
-      </div>
-
       {!isS003Unlocked && (
         <div
-          role="alert"
-          style={{
-            backgroundColor: 'var(--archive-amber-surface)',
-            border: '2px solid var(--archive-amber)',
-            borderRadius: 'var(--radius-control)',
-            padding: '14px 16px',
-            marginBottom: '20px',
-          }}
+          role="status"
+          className="lock-note"
+          style={{ marginBottom: '20px' }}
         >
-          <strong>{t('hypothesis.needQ001')}</strong> {t('hypothesis.needQ001.text')}
+          <span className="lock-note__icon" aria-hidden="true">
+            🔒
+          </span>
+          <span>
+            <strong>{t('hypothesis.needQ001')}</strong> {t('hypothesis.needQ001.text')}
+          </span>
         </div>
       )}
 
       {/* Legend of the 4 EvidenceRelation types (F05 requirement) */}
       <div
         aria-label={t('hypothesis.legendTitle')}
-        style={{
-          backgroundColor: 'var(--archive-ink-elevated)',
-          border: '1px solid var(--archive-midnight-border)',
-          borderRadius: 'var(--radius-card)',
-          padding: '16px',
-          marginBottom: '20px',
-        }}
+        className="scene__panel"
+        style={{ marginBottom: '20px' }}
       >
         <div
           style={{
@@ -130,9 +118,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
             marginBottom: '12px',
           }}
         >
-          <strong style={{ fontSize: '0.95rem' }}>
-            {t('hypothesis.legendTitle')}
-          </strong>
+          <strong style={{ fontSize: '0.95rem' }}>{t('hypothesis.legendTitle')}</strong>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             <button
               type="button"
@@ -172,7 +158,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                     cursor: 'pointer',
                   }}
                 >
-                  {tKey}
+                  {relationTypeMeta[tKey].badgeLabel}
                 </button>
               )
             )}
@@ -212,91 +198,96 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
         </div>
       </div>
 
-      {/* Hypotheses Overview Cards (H001, H002, H003) */}
-      <h3 style={{ fontSize: '1.35rem', marginBottom: '12px' }}>
+      {/* Hypotheses Overview Cards (H001, H002, H003) — 3D deck of hypothesis
+          cards so the competing explanations sit on the same table */}
+      <h3 style={{ fontSize: '1.3rem', marginBottom: '12px' }}>
         {t('hypothesis.stateTitle')}
       </h3>
       <div
+        className="scene__panel"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '16px',
+          padding: '16px 12px 20px',
           marginBottom: '24px',
         }}
       >
-        {dataset.hypotheses.map((hyp) => {
-          const badge = getHypothesisBadge(hyp);
-          return (
-            <article
-              key={hyp.id}
-              data-testid={`hypothesis-card-${hyp.id}`}
-              style={{
-                backgroundColor: 'var(--archive-midnight)',
-                border: '1px solid var(--archive-midnight-border)',
-                borderRadius: 'var(--radius-card)',
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '10px',
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginBottom: '8px',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontWeight: 700,
-                      fontSize: '0.82rem',
-                      color: 'var(--archive-amber-bright)',
-                    }}
-                  >
-                    {hyp.code}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: '0.76rem',
-                      fontWeight: 700,
-                      padding: '2px 8px',
-                      borderRadius: '999px',
-                      backgroundColor: badge.bg,
-                      color: '#F7F4ED',
-                    }}
-                  >
-                    {badge.text}
-                  </span>
-                </div>
-                <h4 style={{ margin: '0 0 6px 0', fontSize: '1.15rem' }}>{hyp.title}</h4>
-                <p style={{ margin: '0 0 10px 0', fontSize: '0.92rem', color: 'var(--text-light)' }}>
-                  {hyp.text}
-                </p>
-              </div>
-              <div
+        <Deck3D
+          cards={dataset.hypotheses.map((hyp) => ({
+            id: hyp.id,
+            node: (
+              <article
+                key={hyp.id}
+                data-testid={`hypothesis-card-${hyp.id}`}
+                className="archive-card"
+                data-state="neutral"
                 style={{
-                  backgroundColor: 'rgba(16, 26, 36, 0.65)',
-                  padding: '10px',
-                  borderRadius: '8px',
-                  fontSize: '0.84rem',
-                  color: 'var(--text-muted)',
+                  padding: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '10px',
+                  height: '100%',
                 }}
               >
-                <strong>{t('hypothesis.nuance')}</strong> {hyp.epistemicNote}
-              </div>
-            </article>
-          );
-        })}
+                <div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: '0.76rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: 'var(--archive-amber-bright)',
+                      }}
+                    >
+                      {t('hypothesis.hypothesisLabel')}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.76rem',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '999px',
+                        backgroundColor: getHypothesisBadge(hyp).bg,
+                        color: '#F7F4ED',
+                      }}
+                    >
+                      {getHypothesisBadge(hyp).text}
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '0 0 6px 0', fontSize: '1.15rem' }}>{hyp.title}</h4>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '0.92rem', color: 'var(--text-light)' }}>
+                    {stripIdParentheticals(hyp.text)}
+                  </p>
+                </div>
+                <div
+                  style={{
+                    backgroundColor: 'rgba(7, 12, 20, 0.7)',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    fontSize: '0.84rem',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  <strong>{t('hypothesis.nuance')}</strong> {stripIdParentheticals(hyp.epistemicNote)}
+                </div>
+              </article>
+            ),
+          }))}
+          ariaLabel={t('hypothesis.stateTitle')}
+          dataTestId="hypothesis-cards-deck"
+        />
       </div>
 
       {/* Evidence Relations Evaluation List (ER001–ER005) */}
-      <h3 style={{ fontSize: '1.35rem', marginBottom: '12px' }}>
+      <h3 style={{ fontSize: '1.3rem', marginBottom: '12px' }}>
         {t('hypothesis.relEvalTitle')}
       </h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
@@ -311,12 +302,10 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
             <div
               key={rel.id}
               data-testid={`evidence-relation-${rel.id}`}
+              className="archive-card"
+              data-state={isEvaluated ? 'selected' : 'neutral'}
+              data-interactive="true"
               style={{
-                backgroundColor: 'var(--archive-ink-elevated)',
-                border: isEvaluated
-                  ? `2px solid ${meta.color}`
-                  : '1px solid var(--archive-midnight-border)',
-                borderRadius: 'var(--radius-card)',
                 padding: '16px',
                 transition: 'border-color var(--motion-m05)',
               }}
@@ -332,16 +321,6 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                 }}
               >
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      color: 'var(--text-muted)',
-                    }}
-                  >
-                    [{rel.id}]
-                  </span>
                   <strong>
                     {source?.title} ({source?.date})
                   </strong>
@@ -356,7 +335,7 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                       borderRadius: '999px',
                     }}
                   >
-                    {rel.relationLabel}
+                    {stripTechnicalSuffix(rel.relationLabel)}
                   </span>
                   <strong>
                     → {hypothesis?.title}
@@ -371,14 +350,14 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                       style={{
                         backgroundColor: 'var(--archive-midnight)',
                         color: 'var(--text-light)',
-                        border: '1px solid var(--archive-midnight-border)',
+                        border: '1px solid var(--archive-amber)',
                         borderRadius: '6px',
                         padding: '5px 10px',
                         fontSize: '0.8rem',
                         cursor: 'pointer',
                       }}
                     >
-                      {t('hypothesis.readSource', { id: rel.sourceId })}
+                      {t('hypothesis.readSource')}
                     </button>
                   )}
                   <button
@@ -409,8 +388,21 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
                 </div>
               </div>
 
+              {!isSourceRead && (
+                <p
+                  style={{
+                    margin: '0 0 10px 0',
+                    fontSize: '0.84rem',
+                    color: 'var(--text-muted)',
+                    fontStyle: 'italic',
+                  }}
+                >
+                  {t('hypothesis.sourceNotRead')}
+                </p>
+              )}
+
               <p style={{ margin: 0, fontSize: '0.94rem', color: 'var(--text-light)' }}>
-                <strong>{t('hypothesis.rationale')}</strong> {rel.rationale}
+                <strong>{t('hypothesis.rationale')}</strong> {stripIdParentheticals(rel.rationale)}
               </p>
             </div>
           );
@@ -436,6 +428,6 @@ export const HypothesisState: React.FC<HypothesisStateProps> = ({
           {t('hypothesis.proceedS05')}
         </button>
       </div>
-    </section>
+    </SceneShell>
   );
 };

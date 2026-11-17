@@ -296,18 +296,18 @@ export function calculateFactualProgress(
   const steps: FactualProgressStep[] = [
     {
       id: 'STEP_COMPARE',
-      label: '1. Comparaison initiale (S001 & S002)',
+      label: '1. Comparaison initiale des deux pièces',
       completed: initialDocsCompared,
       detail: initialDocsCompared
-        ? 'Sources S001 (1920) et S002 (1922) consultées'
-        : 'Consultez S001 et S002 pour observer l’écart',
+        ? 'Les deux pièces de 1920 et 1922 ont été consultées'
+        : 'Consultez les deux pièces pour observer l’écart',
     },
     {
       id: 'STEP_BRIDGE',
-      label: '2. Question manquante (Missing Bridge)',
+      label: '2. Question manquante (Le Pont Manquant)',
       completed: questionExplored,
       detail: questionExplored
-        ? `Piste explorée (${investigation.exploredQuestionIds.join(', ')})`
+        ? 'Une piste d’investigation a été explorée'
         : 'Interrogez le lien entre les deux affirmations',
     },
     {
@@ -315,7 +315,7 @@ export function calculateFactualProgress(
       label: '3. Examen de preuve & relations',
       completed: reasoningEvaluated,
       detail: pertinentClueInspected
-        ? 'Registre S003 (1921) découvert et consulté'
+        ? 'Le registre de transfert de 1921 a été découvert et consulté'
         : reasoningEvaluated
           ? 'Relations preuve/hypothèse examinées'
           : 'Découvrez et examinez l’indice intermédiaire',

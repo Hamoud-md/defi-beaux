@@ -1,37 +1,54 @@
+/* ============================================================================
+   THE MEMORY CITY — THE ECHO DETECTIVE
+   Design system "The Forgotten Clock Tower" : deep night, drifting fog,
+   an old city silhouette and one glowing golden clock tower.
+   ========================================================================== */
+
 :root {
-  /* CDR-001 Design Tokens — Noir Archivistique Contemporain */
-  --archive-ink: #101A24;
-  --archive-ink-elevated: #162432;
-  --archive-midnight: #203549;
-  --archive-midnight-border: #314E68;
+  /* Night palette -------------------------------------------------------- */
+  --archive-ink: #070C14;
+  --archive-ink-elevated: #0D1622;
+  --archive-midnight: #16222F;
+  --archive-midnight-border: #2B4055;
   --archive-paper: #E8DCC8;
   --archive-paper-aged: #DDD0B8;
   --archive-paper-border: #C4B293;
   --archive-amber: #C58A45;
-  --archive-amber-bright: #DDA35D;
-  --archive-amber-surface: rgba(197, 138, 69, 0.16);
+  --archive-amber-bright: #E0A75F;
+  --archive-amber-surface: rgba(197, 138, 69, 0.18);
   --archive-teal: #3A8C79;
-  --archive-teal-bright: #56B39D;
-  --archive-teal-surface: rgba(58, 140, 121, 0.18);
-  --archive-crimson: #D96B6B;
-  --archive-crimson-surface: rgba(217, 107, 107, 0.16);
+  --archive-teal-bright: #5FC4AB;
+  --archive-teal-surface: rgba(58, 140, 121, 0.2);
+  --archive-crimson: #E08585;
+  --archive-crimson-surface: rgba(224, 133, 133, 0.16);
 
-  --text-light: #F7F4ED;
-  --text-muted: #C4CED8;
-  --text-ink: #172432;
-  --text-ink-secondary: #33475B;
+  /* Atmosphere ----------------------------------------------------------- */
+  --night-deep: #04070D;
+  --night-mid: #0A1524;
+  --night-high: #16293F;
+  --fog-tint: rgba(148, 182, 214, 0.09);
+  --gold-halo: rgba(224, 167, 95, 0.4);
+  --gold-halo-soft: rgba(224, 167, 95, 0.16);
+  --glass: linear-gradient(180deg, rgba(22, 34, 47, 0.92) 0%, rgba(9, 15, 23, 0.94) 100%);
+  --glass-paper: linear-gradient(180deg, rgba(232, 220, 200, 0.98) 0%, rgba(215, 202, 178, 0.98) 100%);
+
+  --text-light: #F6F3EC;
+  --text-muted: #C3CEDA;
+  --text-ink: #16222F;
+  --text-ink-secondary: #2F4457;
 
   --radius-card: 16px;
   --radius-control: 10px;
+  --radius-scene: 22px;
   --spacing-base: 4px;
   --content-max: 1200px;
 
-  /* Typographies CDR-001 */
+  /* Typographies --------------------------------------------------------- */
   --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
 
-  /* Motion Design Tokens M01–M10 */
+  /* Motion --------------------------------------------------------------- */
   --motion-m01: 200ms cubic-bezier(0.22, 1, 0.36, 1);
   --motion-m02: 180ms cubic-bezier(0.22, 1, 0.36, 1);
   --motion-m03: 240ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -42,7 +59,7 @@
   --motion-m09: 120ms ease-in-out;
 }
 
-/* Reduced Motion support (OS preference + explicit UI toggle) */
+/* Reduced motion support (OS preference + explicit UI toggle) */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-m01: 0ms;
@@ -85,9 +102,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(32, 53, 73, 0.55) 0%, rgba(16, 26, 36, 0.98) 70%),
-    var(--archive-ink);
+  background: var(--archive-ink);
   color: var(--text-light);
   font-size: 1rem;
   overflow-x: hidden;
@@ -125,11 +140,15 @@ body {
 h1,
 h2,
 h3,
+h4,
 .serif-heading {
   font-family: var(--font-serif);
   font-weight: 700;
   line-height: 1.2;
   margin-top: 0;
+  /* Cormorant defaults to old-style figures, which turns "C001" into "Coor".
+     Lining numerals keep case references and years unmistakably legible. */
+  font-variant-numeric: lining-nums;
 }
 
 p {
@@ -145,8 +164,894 @@ select {
   font-size: 1rem;
 }
 
+/* ============================================================================
+   1. THE FORGOTTEN CLOCK TOWER — atmospheric backdrop
+   Purely decorative (aria-hidden) and always behind the content.
+   ========================================================================== */
+
+.clock-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, var(--night-high) 0%, rgba(10, 21, 36, 0) 70%),
+    linear-gradient(180deg, var(--night-mid) 0%, var(--night-deep) 62%, #02050A 100%);
+}
+
+.clock-scene__stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
+}
+
+.clock-scene__moon {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  width: min(520px, 60vw);
+  height: min(520px, 60vw);
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(214, 231, 246, 0.16) 0%,
+    rgba(160, 196, 228, 0.08) 34%,
+    rgba(120, 160, 200, 0) 68%
+  );
+  filter: blur(2px);
+}
+
+.clock-scene__tower {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: min(340px, 34vw);
+  height: min(620px, 68vh);
+  transform: translateX(-50%);
+  opacity: 0.72;
+}
+
+.clock-scene__tower-glow {
+  position: absolute;
+  bottom: 16%;
+  left: 50%;
+  width: min(760px, 78vw);
+  height: min(760px, 78vw);
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--gold-halo) 0%,
+    var(--gold-halo-soft) 26%,
+    rgba(224, 167, 95, 0) 62%
+  );
+  animation: tower-breathe 9s ease-in-out infinite;
+}
+
+.clock-scene__city {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: min(46vh, 420px);
+}
+
+.clock-scene__fog {
+  position: absolute;
+  left: -35%;
+  width: 170%;
+  height: 34vh;
+  bottom: 6vh;
+  background: radial-gradient(
+    ellipse at 50% 60%,
+    rgba(160, 195, 225, 0.11) 0%,
+    rgba(120, 160, 200, 0.05) 42%,
+    rgba(120, 160, 200, 0) 74%
+  );
+  animation: fog-drift 46s linear infinite;
+}
+
+.clock-scene__fog--back {
+  bottom: 16vh;
+  opacity: 0.55;
+  animation-duration: 68s;
+  animation-direction: reverse;
+}
+
+.clock-scene__fog--front {
+  bottom: 0;
+  height: 40vh;
+  opacity: 0.75;
+  animation-duration: 34s;
+}
+
+.clock-scene__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(0, 0, 0, 0) 32%, rgba(2, 4, 8, 0.72) 100%),
+    linear-gradient(180deg, rgba(2, 4, 8, 0.42) 0%, rgba(2, 4, 8, 0) 22%);
+}
+
+@keyframes fog-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(18%, 0, 0);
+  }
+}
+
+@keyframes tower-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes star-flicker {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* ============================================================================
+   2. SCENES — the investigation is a sequence of scenes, not one long page
+   ========================================================================== */
+
+.scene {
+  position: relative;
+  margin-bottom: clamp(28px, 4vw, 46px);
+}
+
+.scene__header {
+  margin-bottom: 18px;
+}
+
+.scene__chapter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--archive-amber-bright);
+}
+
+.scene__chapter::before {
+  content: '';
+  width: 26px;
+  height: 1px;
+  background: linear-gradient(to right, rgba(224, 167, 95, 0.9), rgba(224, 167, 95, 0));
+}
+
+.scene__title {
+  margin: 0 0 8px 0;
+  font-size: clamp(1.65rem, 3.2vw, 2.35rem);
+  color: var(--text-light);
+  text-shadow: 0 2px 26px rgba(0, 0, 0, 0.6);
+}
+
+.scene__lede {
+  margin: 0;
+  max-width: 74ch;
+  color: var(--text-muted);
+  font-size: 1.02rem;
+}
+
+.scene__panel {
+  position: relative;
+  border: 1px solid rgba(120, 160, 200, 0.14);
+  border-radius: var(--radius-scene);
+  background: linear-gradient(180deg, rgba(16, 27, 41, 0.9) 0%, rgba(7, 12, 20, 0.94) 100%);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  box-shadow:
+    0 26px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: clamp(16px, 2.4vw, 30px);
+}
+
+.scene__panel--paper {
+  background: var(--glass-paper);
+  color: var(--text-ink);
+  border-color: var(--archive-paper-border);
+}
+
+.scene__divider {
+  height: 1px;
+  margin: 20px 0;
+  background: linear-gradient(
+    to right,
+    rgba(224, 167, 95, 0.4),
+    rgba(120, 160, 200, 0.14) 40%,
+    rgba(120, 160, 200, 0)
+  );
+}
+
+/* ============================================================================
+   3. CARD STATE SYSTEM — neutral / hover / selected / locked / revealed / weak
+   State is never carried by colour alone: every card also shows a labelled
+   state chip (icon + text) so the meaning survives colour-blindness.
+   ========================================================================== */
+
+.archive-card {
+  position: relative;
+  border: 1px solid var(--archive-midnight-border);
+  border-radius: var(--radius-card);
+  background: linear-gradient(180deg, rgba(18, 29, 43, 0.92) 0%, rgba(8, 14, 22, 0.95) 100%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+  transition:
+    transform var(--motion-m03),
+    box-shadow var(--motion-m03),
+    border-color var(--motion-m03);
+}
+
+.archive-card[data-state='selected'] {
+  border-color: var(--archive-amber-bright);
+  box-shadow:
+    0 0 0 1px rgba(224, 167, 95, 0.3),
+    0 20px 44px rgba(0, 0, 0, 0.5),
+    0 0 46px rgba(197, 138, 69, 0.18);
+}
+
+.archive-card[data-state='revealed'] {
+  border-color: var(--archive-teal-bright);
+  box-shadow:
+    0 0 0 1px rgba(95, 196, 171, 0.28),
+    0 20px 44px rgba(0, 0, 0, 0.5),
+    0 0 46px rgba(58, 140, 121, 0.2);
+}
+
+.archive-card[data-state='locked'] {
+  border-style: dashed;
+  border-color: #3D5771;
+  background: linear-gradient(180deg, rgba(13, 22, 34, 0.82) 0%, rgba(6, 11, 18, 0.9) 100%);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.45);
+}
+
+.archive-card[data-state='weak'] {
+  border-color: rgba(224, 167, 95, 0.42);
+  background: linear-gradient(180deg, rgba(30, 27, 22, 0.9) 0%, rgba(10, 14, 20, 0.94) 100%);
+}
+
+.archive-card[data-state='neutral'] {
+  border-color: var(--archive-midnight-border);
+}
+
+@media (hover: hover) {
+  .archive-card[data-interactive='true']:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* State chip — icon + label, never colour alone */
+.state-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--archive-midnight-border);
+  background: rgba(7, 12, 20, 0.7);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.state-chip[data-tone='selected'] {
+  border-color: var(--archive-amber-bright);
+  color: var(--archive-amber-bright);
+  background: var(--archive-amber-surface);
+}
+
+.state-chip[data-tone='revealed'] {
+  border-color: var(--archive-teal-bright);
+  color: var(--archive-teal-bright);
+  background: var(--archive-teal-surface);
+}
+
+.state-chip[data-tone='locked'] {
+  border-color: #4A6784;
+  color: #A9BCCF;
+  background: rgba(28, 42, 58, 0.7);
+}
+
+.state-chip[data-tone='weak'] {
+  border-color: rgba(224, 167, 95, 0.55);
+  color: #E3C08A;
+  background: rgba(120, 92, 48, 0.24);
+}
+
+/* Locked explanation block */
+.lock-note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  border: 1px dashed #4A6784;
+  background: rgba(16, 26, 38, 0.72);
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.lock-note__icon {
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* ============================================================================
+   4. THE MISSING BRIDGE — the signature interaction
+   ========================================================================== */
+
+.bridge-stage {
+  position: relative;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--archive-midnight-border);
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(224, 167, 95, 0.1) 0%, rgba(0, 0, 0, 0) 62%),
+    linear-gradient(180deg, rgba(9, 15, 23, 0.9) 0%, rgba(5, 9, 15, 0.96) 100%);
+  padding: 10px 8px 4px;
+  overflow: hidden;
+}
+
+.bridge-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bridge-canvas__tower {
+  fill: #0C1622;
+  stroke: rgba(140, 180, 215, 0.32);
+  stroke-width: 1.4;
+}
+
+.bridge-canvas__tower--far {
+  fill: #080F19;
+  stroke: rgba(120, 160, 200, 0.18);
+}
+
+.bridge-canvas__roof {
+  fill: #0A1220;
+  stroke: rgba(140, 180, 215, 0.26);
+  stroke-width: 1.2;
+}
+
+.bridge-canvas__cliff {
+  fill: #060B13;
+}
+
+.bridge-canvas__chasm {
+  fill: url(#bridgeChasm);
+}
+
+.bridge-canvas__ghost {
+  fill: none;
+  stroke: rgba(224, 167, 95, 0.34);
+  stroke-width: 2;
+  stroke-dasharray: 7 8;
+  stroke-linecap: round;
+}
+
+.bridge-canvas__span {
+  fill: none;
+  stroke: var(--archive-amber-bright);
+  stroke-width: 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 10px rgba(224, 167, 95, 0.65));
+  transform-origin: 190px 244px;
+  animation: span-form var(--motion-m04) cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bridge-canvas__span--broken {
+  stroke: #7E93A8;
+  stroke-dasharray: 10 9;
+  stroke-width: 4;
+  filter: none;
+  animation: span-fracture var(--motion-m04) ease-out both;
+}
+
+.bridge-canvas__rail {
+  fill: none;
+  stroke: rgba(224, 167, 95, 0.55);
+  stroke-width: 1.2;
+}
+
+.bridge-canvas__node {
+  fill: #0B1421;
+  stroke: var(--archive-amber-bright);
+  stroke-width: 2;
+}
+
+.bridge-canvas__keystone {
+  fill: #16222F;
+  stroke: var(--archive-teal-bright);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 14px rgba(95, 196, 171, 0.6));
+  animation: keystone-drop 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.bridge-canvas__clock {
+  fill: #0A1119;
+  stroke: rgba(140, 180, 215, 0.4);
+  stroke-width: 2;
+}
+
+.bridge-canvas__clock--lit {
+  fill: rgba(224, 167, 95, 0.92);
+  stroke: #F2D3A2;
+  filter: drop-shadow(0 0 12px rgba(224, 167, 95, 0.9));
+}
+
+.bridge-canvas__hand {
+  stroke: #0B1421;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.bridge-canvas__label {
+  fill: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bridge-canvas__label--key {
+  fill: var(--archive-amber-bright);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bridge-canvas__year {
+  fill: rgba(224, 167, 95, 0.9);
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 700;
+  font-variant-numeric: lining-nums;
+}
+
+/* Arabic is cursive: wide tracking breaks the joins and uppercasing does
+   nothing, so the Latin display conventions are switched off for RTL. */
+[dir='rtl'] .scene__chapter,
+[dir='rtl'] .state-chip,
+[dir='rtl'] .bridge-canvas__void {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.bridge-canvas__void {
+  fill: rgba(180, 200, 220, 0.5);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@keyframes span-form {
+  from {
+    transform: scaleX(0.02);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes span-fracture {
+  from {
+    stroke-dashoffset: 60;
+    opacity: 0.2;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes keystone-drop {
+  from {
+    transform: translateY(-26px) scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* The signature layout: two shores and the void between them */
+.bridge-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 980px) {
+  .bridge-grid {
+    grid-template-columns: minmax(220px, 1fr) minmax(320px, 1.45fr) minmax(220px, 1fr);
+  }
+}
+
+/* Bridge legend under the canvas */
+.bridge-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  justify-content: center;
+  padding: 8px 6px 10px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.bridge-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.bridge-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+}
+
+.bridge-legend__dot--formed {
+  color: var(--archive-amber-bright);
+  background: rgba(224, 167, 95, 0.35);
+}
+
+.bridge-legend__dot--broken {
+  color: #8FA3B6;
+  border-style: dashed;
+}
+
+.bridge-legend__dot--idle {
+  color: rgba(224, 167, 95, 0.55);
+  border-style: dotted;
+}
+
+/* Chronological echo strip (1920 → 1921 → 1922) */
+.echo-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.echo-strip__node {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--archive-midnight-border);
+  background: rgba(7, 12, 20, 0.6);
+}
+
+.echo-strip__node[data-tone='key'] {
+  border-color: var(--archive-teal-bright);
+  background: var(--archive-teal-surface);
+}
+
+.echo-strip__year {
+  font-family: var(--font-serif);
+  font-size: 1.18rem;
+  font-weight: 700;
+  font-variant-numeric: lining-nums;
+  color: var(--archive-amber-bright);
+}
+
+.echo-strip__node[data-tone='key'] .echo-strip__year {
+  color: var(--archive-teal-bright);
+}
+
+.echo-strip__label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.echo-strip__arrow {
+  align-self: center;
+  color: rgba(224, 167, 95, 0.75);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* ============================================================================
+   5. VOLUMETRIC CARD SYSTEM (CDR-002) — restrained 2.5D depth
+
+   Depth strategy: the deck stays a FLAT plane (no preserve-3d chain), so
+   every button remains reliably clickable and keyboard reachable. Volume
+   comes from the perspective applied on each individual card — it turns over
+   in real 3D — while the deck layers its cards with scale, dimming and
+   shadow. Chrome's pointer hit-testing is unreliable through deep
+   preserve-3d chains, and a card you cannot click is worse than a card that
+   is only visually layered.
+   ========================================================================== */
+
+.scene-3d {
+  perspective: 1400px;
+  perspective-origin: 50% 42%;
+}
+
+.deck-3d {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(10px, 1.6vw, 20px);
+  transform-style: flat;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition: transform var(--motion-m05);
+}
+
+.deck-3d__slot {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  transform-style: flat;
+  transform: scale(var(--deck-scale, 1));
+  transition: transform var(--motion-m03);
+}
+/* Dimming of the cards pushed to the back is done with an overlay instead of
+   `opacity`, because a translucent element would flatten its own 3D context
+   and break the card flipping. */
+.deck-3d__slot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  background: linear-gradient(
+    180deg,
+    rgba(7, 12, 20, 0.72) 0%,
+    rgba(7, 12, 20, 0.9) 100%
+  );
+  opacity: var(--deck-dim, 0);
+  pointer-events: none;
+  transition: opacity var(--motion-m03);
+  z-index: 20;
+}
+
+.deck-3d__slot.is-active {
+  z-index: 5;
+}
+
+.card-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transform-style: flat;
+  perspective: 1200px;
+  transition: transform var(--motion-m03);
+}
+
+.card-3d__inner {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform var(--motion-m03);
+}
+
+.card-3d.is-flipped .card-3d__inner {
+  transform: rotateY(180deg);
+}
+
+.card-3d__face {
+  position: relative;
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-card);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card-3d__face--back {
+  transform: rotateY(180deg);
+}
+
+@media (hover: hover) {
+  .deck-3d__slot.is-active .card-3d:hover {
+    transform: scale(1.012);
+  }
+}
+
+/* ── Investigation path (step navigation) ──────────────────────────────── */
+.progress-path-3d {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  transform-style: flat;
+  padding: 6px 0 10px;
+}
+
+.progress-path-3d::before {
+  content: '';
+  position: absolute;
+  inset-inline: 4%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(197, 138, 69, 0.05),
+    rgba(197, 138, 69, 0.4),
+    rgba(197, 138, 69, 0.05)
+  );
+  pointer-events: none;
+}
+
+.progress-step-3d {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 130px;
+  transform-style: flat;
+  transform: scale(var(--step-scale, 1));
+  opacity: var(--step-opacity, 1);
+  transition: transform var(--motion-m03), box-shadow var(--motion-m03),
+    border-color var(--motion-m03);
+}
+
+@media (hover: hover) {
+  .progress-step-3d:hover {
+    transform: scale(calc(var(--step-scale, 1) + 0.015));
+  }
+}
+
+.progress-step-3d.is-current {
+  box-shadow: 0 12px 26px rgba(197, 138, 69, 0.32);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-step-3d {
+    transition: none !important;
+  }
+
+  .progress-step-3d:hover {
+    transform: scale(var(--step-scale, 1));
+  }
+}
+
+[data-reduced-motion='true'] .progress-step-3d {
+  transition: none !important;
+}
+
+[data-reduced-motion='true'] .progress-step-3d:hover {
+  transform: scale(var(--step-scale, 1));
+}
+
+/* ── Responsive: the deck stacks on small screens ─────────────────────── */
+@media (max-width: 1024px) {
+  .deck-3d__slot {
+    transform: scale(var(--deck-scale, 1));
+  }
+}
+
+@media (max-width: 760px) {
+  .deck-3d {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .deck-3d__slot {
+    transform: scale(1);
+  }
+
+  .deck-3d__slot::after {
+    opacity: calc(var(--deck-dim, 0) * 0.4);
+  }
+}
+
+/* ── Gloss / depth helpers ────────────────────────────────────────────── */
+.card-3d__sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.01) 34%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+}
+
+.card-flip-btn {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--archive-midnight-border);
+  background: rgba(7, 12, 20, 0.82);
+  color: var(--archive-amber-bright);
+  transition: transform var(--motion-m09), background-color var(--motion-m09),
+    color var(--motion-m09);
+  z-index: 3;
+}
+
+.card-flip-btn:hover {
+  transform: rotate(180deg);
+  background: var(--archive-amber);
+  color: var(--archive-ink);
+}
+
+.card-3d__face--back .card-flip-btn:hover {
+  transform: rotate(180deg);
+}
+
+/* ── Stacked 3D scene for the discovery hero ──────────────────────────── */
+.tilt-surface {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition: transform var(--motion-m05);
+  will-change: transform;
+}
+
+/* ── Ambient depth backdrop for 3D stages ──────────────────────────────── */
+.stage-3d {
+  position: relative;
+  isolation: isolate;
+}
+
+.stage-3d::before {
+  content: '';
+  position: absolute;
+  inset: -6% -4%;
+  z-index: -1;
+  border-radius: 28px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(197, 138, 69, 0.14) 0%, rgba(7, 12, 20, 0) 62%),
+    radial-gradient(ellipse at 18% 100%, rgba(58, 140, 121, 0.12) 0%, rgba(7, 12, 20, 0) 58%);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
 /* Layout shell */
 .app-container {
+  position: relative;
+  z-index: 1;
   max-width: var(--content-max);
   margin: 0 auto;
   padding: 0 20px 80px;
@@ -189,6 +1094,90 @@ select {
 
 .animate-clue-reveal {
   animation: fadeSlideIn var(--motion-m04) forwards;
+}
+
+/* ============================================================================
+   6. REDUCED MOTION — every decorative animation is neutralised
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-3d,
+  .deck-3d__slot,
+  .card-3d {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .card-3d__inner {
+    transition: none !important;
+  }
+
+  .deck-3d__slot {
+    --deck-dim: 0 !important;
+  }
+
+  .card-flip-btn:hover {
+    transform: none !important;
+  }
+
+  .tilt-surface {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .clock-scene__fog,
+  .clock-scene__tower-glow {
+    animation: none !important;
+  }
+
+  .bridge-canvas__span,
+  .bridge-canvas__span--broken,
+  .bridge-canvas__keystone {
+    animation: none !important;
+  }
+
+  .archive-card[data-interactive='true']:hover {
+    transform: none !important;
+  }
+}
+
+[data-reduced-motion='true'] .deck-3d,
+[data-reduced-motion='true'] .deck-3d__slot,
+[data-reduced-motion='true'] .card-3d {
+  transform: none !important;
+  transition: none !important;
+}
+
+[data-reduced-motion='true'] .card-3d__inner {
+  transition: none !important;
+}
+
+[data-reduced-motion='true'] .deck-3d__slot {
+  --deck-dim: 0 !important;
+}
+
+[data-reduced-motion='true'] .card-flip-btn:hover {
+  transform: none !important;
+}
+
+[data-reduced-motion='true'] .tilt-surface {
+  transform: none !important;
+  transition: none !important;
+}
+
+[data-reduced-motion='true'] .clock-scene__fog,
+[data-reduced-motion='true'] .clock-scene__tower-glow {
+  animation: none !important;
+}
+
+[data-reduced-motion='true'] .bridge-canvas__span,
+[data-reduced-motion='true'] .bridge-canvas__span--broken,
+[data-reduced-motion='true'] .bridge-canvas__keystone {
+  animation: none !important;
+}
+
+[data-reduced-motion='true'] .archive-card[data-interactive='true']:hover {
+  transform: none !important;
 }
 
 [data-reduced-motion='true'] .animate-entry,

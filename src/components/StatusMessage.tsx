@@ -60,11 +60,19 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
           display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'center',
-          gap: '8px',
+          gap: '6px',
           marginBottom: message || errorDetail ? '10px' : '0',
         }}
       >
-        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+        <span
+          style={{
+            fontSize: '0.7rem',
+            color: 'var(--text-muted)',
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+          }}
+        >
           {t('status.activeStates')}
         </span>
         {transverseStates.map((st) => {
@@ -76,23 +84,9 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
             <span
               key={st}
               data-testid={`transverse-state-${st}`}
-              style={{
-                fontSize: '0.78rem',
-                fontWeight: 600,
-                padding: '2px 10px',
-                borderRadius: '999px',
-                backgroundColor: isWarn
-                  ? 'var(--archive-crimson-surface)'
-                  : isOk
-                    ? 'var(--archive-teal-surface)'
-                    : 'var(--archive-midnight)',
-                border: isWarn
-                  ? '1px solid var(--archive-crimson)'
-                  : isOk
-                    ? '1px solid var(--archive-teal)'
-                    : '1px solid var(--archive-midnight-border)',
-                color: 'var(--text-light)',
-              }}
+              className="state-chip"
+              data-tone={isWarn ? 'locked' : isOk ? 'revealed' : 'neutral'}
+              style={{ fontSize: '0.7rem' }}
             >
               <span aria-hidden="true">{icon} </span>
               {label}

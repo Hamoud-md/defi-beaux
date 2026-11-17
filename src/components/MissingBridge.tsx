@@ -7,6 +7,9 @@ import {
 import { ClaimPanel } from './ClaimPanel';
 import { ResearchQuestion } from './ResearchQuestion';
 import { EvidenceDocument } from './EvidenceDocument';
+import { Deck3D } from './threeD/Deck3D';
+import { SceneShell } from './SceneShell';
+import { BridgeCanvas, BridgeState, EchoStrip } from './BridgeCanvas';
 import { useI18n } from '../i18n/I18nContext';
 
 interface MissingBridgeProps {
@@ -30,7 +33,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
   onInspectSource,
   onProceedToAnalysis,
 }) => {
-  const { t } = useI18n();
+  const { t, isRtl } = useI18n();
   const claim1 = dataset.claims.find((c) => c.id === 'CL001');
   const claim2 = dataset.claims.find((c) => c.id === 'CL002');
   const claim3 = dataset.claims.find((c) => c.id === 'CL003');
@@ -39,6 +42,17 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
   const activeQuestion = dataset.questions.find((q) => q.id === selectedQuestionId) ?? null;
   const isS003Unlocked =
     selectedQuestionId === 'Q001' || exploredQuestionIds.includes('Q001');
+
+  /**
+   * The bridge state is the visible consequence of the chosen path:
+   * a pertinent path completes the span, a path without evidence snaps it
+   * half-way, and an untouched case keeps the void open.
+   */
+  const bridgeState: BridgeState = isS003Unlocked
+    ? 'formed'
+    : selectedQuestionId
+      ? 'broken'
+      : 'idle';
 
   const getSourcesForClaim = (sourceIds: string[]): Source[] =>
     dataset.sources.filter((s) => sourceIds.includes(s.id));
@@ -56,19 +70,33 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
     return t('bridge.status.Q003');
   };
 
+  const bridgeCanvasLabel =
+    bridgeState === 'formed'
+      ? t('bridge.canvas.state.formed')
+      : bridgeState === 'broken'
+        ? t('bridge.canvas.state.broken')
+        : t('bridge.canvas.state.idle');
+
+  const claimState = bridgeState === 'formed' ? 'selected' : 'neutral';
+
   return (
-    <section
-      aria-labelledby="missing-bridge-heading"
-      data-testid="missing-bridge-section"
-      className="animate-entry"
+    <SceneShell
+      chapter={t('scene.chapter.III')}
+      title={
+        interactionMode === 'missing-bridge'
+          ? t('bridge.heading.signature')
+          : t('bridge.heading.fallback')
+      }
+      lede={t('bridge.instruction')}
+      titleId="missing-bridge-heading"
+      testId="missing-bridge-section"
     >
       {/* Permanent comparative summary (Desktop & Mobile requirement Section 5) */}
       <div
         data-testid="permanent-comparative-summary"
+        className="archive-card"
+        data-state={isS003Unlocked ? 'revealed' : 'neutral'}
         style={{
-          backgroundColor: 'var(--archive-ink-elevated)',
-          border: '1px solid var(--archive-midnight-border)',
-          borderRadius: 'var(--radius-card)',
           padding: '14px 18px',
           marginBottom: '18px',
           display: 'flex',
@@ -81,9 +109,9 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
         <div>
           <span
             style={{
-              fontSize: '0.78rem',
+              fontSize: '0.74rem',
               textTransform: 'uppercase',
-              letterSpacing: '0.06em',
+              letterSpacing: '0.08em',
               color: 'var(--archive-amber-bright)',
               fontWeight: 700,
               display: 'block',
@@ -96,36 +124,14 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
           </p>
         </div>
 
-        <div
-          style={{
-            padding: '6px 12px',
-            borderRadius: '999px',
-            backgroundColor: isS003Unlocked
-              ? 'var(--archive-teal-surface)'
-              : 'var(--archive-amber-surface)',
-            border: isS003Unlocked
-              ? '1px solid var(--archive-teal-bright)'
-              : '1px solid var(--archive-amber)',
-            fontSize: '0.84rem',
-            fontWeight: 700,
-          }}
+        <span
+          className="state-chip"
+          data-tone={isS003Unlocked ? 'revealed' : 'neutral'}
+          style={{ fontSize: '0.8rem' }}
         >
+          <span aria-hidden="true">{isS003Unlocked ? '✦' : '○'}</span>
           {isS003Unlocked ? t('bridge.clueUnlocked') : t('bridge.clueMissing')}
-        </div>
-      </div>
-
-      <div style={{ marginBottom: '16px' }}>
-        <h2
-          id="missing-bridge-heading"
-          style={{ fontSize: '1.75rem', margin: '0 0 6px 0', color: 'var(--text-light)' }}
-        >
-          {interactionMode === 'missing-bridge'
-            ? t('bridge.heading.signature')
-            : t('bridge.heading.fallback')}
-        </h2>
-        <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-          {t('bridge.instruction')}
-        </p>
+        </span>
       </div>
 
       {/* Accessible Causal Status Banner (F03 / M03 / A04) */}
@@ -133,19 +139,12 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
         role="status"
         aria-live="polite"
         data-testid="missing-bridge-status"
+        className="archive-card"
+        data-state={activeQuestion?.id === 'Q001' ? 'revealed' : 'neutral'}
         style={{
-          backgroundColor:
-            activeQuestion?.id === 'Q001'
-              ? 'var(--archive-teal-surface)'
-              : 'var(--archive-amber-surface)',
-          border:
-            activeQuestion?.id === 'Q001'
-              ? '2px solid var(--archive-teal-bright)'
-              : '2px solid var(--archive-amber)',
-          borderRadius: 'var(--radius-control)',
           padding: '14px 16px',
           marginBottom: '20px',
-          transition: 'background-color var(--motion-m03), border-color var(--motion-m03)',
+          transition: 'border-color var(--motion-m03), box-shadow var(--motion-m03)',
         }}
       >
         <div
@@ -162,106 +161,90 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
           </strong>
           <span
             style={{
-              fontSize: '0.8rem',
-              fontFamily: 'var(--font-mono)',
-              padding: '2px 8px',
-              borderRadius: '6px',
-              backgroundColor: 'var(--archive-ink)',
+              fontSize: '0.78rem',
+              color: 'var(--text-muted)',
+              padding: '3px 10px',
+              borderRadius: '999px',
+              border: '1px solid var(--archive-midnight-border)',
             }}
           >
-            {t('bridge.activeTrack')} {selectedQuestionId ?? t('bridge.none')}
+            {t('bridge.activeTrack')} {activeQuestion ? activeQuestion.shortLabel.replace(/\s*\([^)]*\)\s*$/u, '') : t('bridge.none')}
           </span>
         </div>
       </div>
 
       {interactionMode === 'missing-bridge' ? (
         /* Desktop 3-column / Mobile stacked Signature Missing Bridge Layout */
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '18px',
-            alignItems: 'stretch',
-            marginBottom: '24px',
-          }}
-        >
-          {/* Left Claim: CL001 (1920) */}
+        <div className="bridge-grid">
+          {/* Left Claim: 1920 — the old tower */}
           {claim1 && (
             <ClaimPanel
               claim={claim1}
+              badgeLabel={t('claim.labelA')}
+              state={claimState}
               linkedSources={getSourcesForClaim(claim1.sourceIds)}
               inspectedSourceIds={inspectedSourceIds}
               onInspectSource={onInspectSource}
             />
           )}
 
-          {/* Center Bridge: Unresolved Question Connector */}
-          <div
-            data-testid="bridge-connector-column"
-            style={{
-              backgroundColor: 'var(--archive-ink-elevated)',
-              border:
-                selectedQuestionId === 'Q001'
-                  ? '2px solid var(--archive-teal-bright)'
-                  : '2px dashed var(--archive-amber)',
-              borderRadius: 'var(--radius-card)',
-              padding: '18px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              gap: '14px',
-              transition: 'border-color var(--motion-m03)',
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  textAlign: 'center',
-                  padding: '8px 12px',
-                  backgroundColor: 'var(--archive-midnight)',
-                  borderRadius: '10px',
-                  marginBottom: '12px',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    color:
-                      selectedQuestionId === 'Q001'
-                        ? 'var(--archive-teal-bright)'
-                        : 'var(--archive-amber-bright)',
-                  }}
-                >
-                  {selectedQuestionId === 'Q001'
-                    ? t('bridge.linked')
-                    : t('bridge.unresolved')}
-                </span>
-                <p style={{ margin: '4px 0 0 0', fontSize: '0.88rem', color: 'var(--text-light)' }}>
-                  {t('bridge.centerQuestion')}
-                </p>
-              </div>
+          {/* Center: the bridge itself */}
+          <div data-testid="bridge-connector-column" className="bridge-stage">
+            <BridgeCanvas
+              state={bridgeState}
+              leftLabel={claim1?.locationLabel ?? t('bridge.canvas.oldTower')}
+              rightLabel={claim2?.locationLabel ?? t('bridge.canvas.newTower')}
+              leftYear={claim1?.yearLabel ?? '1920'}
+              rightYear={claim2?.yearLabel ?? '1922'}
+              keystoneLabel={bridgeState === 'formed' ? source3?.title : null}
+              stateLabel={bridgeCanvasLabel}
+              isRtl={isRtl}
+            />
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {dataset.questions.map((q) => (
-                  <ResearchQuestion
-                    key={q.id}
-                    question={q}
-                    isSelected={selectedQuestionId === q.id}
-                    wasExplored={exploredQuestionIds.includes(q.id)}
-                    onSelect={onSelectQuestion}
-                  />
-                ))}
-              </div>
+            <div className="bridge-legend">
+              <span className="bridge-legend__item">
+                <span className="bridge-legend__dot bridge-legend__dot--idle" aria-hidden="true" />
+                {t('bridge.canvas.legend.idle')}
+              </span>
+              <span className="bridge-legend__item">
+                <span className="bridge-legend__dot bridge-legend__dot--formed" aria-hidden="true" />
+                {t('bridge.canvas.legend.formed')}
+              </span>
+              <span className="bridge-legend__item">
+                <span className="bridge-legend__dot bridge-legend__dot--broken" aria-hidden="true" />
+                {t('bridge.canvas.legend.broken')}
+              </span>
             </div>
+
+            <p
+              style={{
+                margin: '0 0 10px',
+                textAlign: 'center',
+                fontSize: '0.92rem',
+                color: 'var(--text-light)',
+                fontWeight: 600,
+              }}
+            >
+              {bridgeCanvasLabel}
+            </p>
+
+            <EchoStrip
+              keystone={
+                bridgeState === 'formed'
+                  ? { year: '1921', label: source3?.title ?? t('bridge.canvas.keystone') }
+                  : null
+              }
+              left={{ year: '1920', label: claim1?.locationLabel ?? '' }}
+              right={{ year: '1922', label: claim2?.locationLabel ?? '' }}
+            />
           </div>
 
-          {/* Right Claim: CL002 (1922) */}
+          {/* Right Claim: 1922 — the new tower */}
           {claim2 && (
             <ClaimPanel
               claim={claim2}
+              badgeLabel={t('claim.labelB')}
+              state={claimState}
               linkedSources={getSourcesForClaim(claim2.sourceIds)}
               inspectedSourceIds={inspectedSourceIds}
               onInspectSource={onInspectSource}
@@ -272,13 +255,8 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
         /* Guided Comparison Classical Baseline (Fallback Section 4.2 & A23) */
         <div
           data-testid="guided-baseline-container"
-          style={{
-            backgroundColor: 'var(--archive-ink-elevated)',
-            border: '1px solid var(--archive-midnight-border)',
-            borderRadius: 'var(--radius-card)',
-            padding: '20px',
-            marginBottom: '24px',
-          }}
+          className="scene__panel"
+          style={{ marginBottom: '24px' }}
         >
           <p style={{ marginTop: 0, color: 'var(--text-muted)' }}>
             <strong>{t('bridge.fallbackTitle')}</strong> {t('bridge.fallbackDesc')}
@@ -294,6 +272,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
             {claim1 && (
               <ClaimPanel
                 claim={claim1}
+                badgeLabel={t('claim.labelA')}
                 linkedSources={getSourcesForClaim(claim1.sourceIds)}
                 inspectedSourceIds={inspectedSourceIds}
                 onInspectSource={onInspectSource}
@@ -302,23 +281,53 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
             {claim2 && (
               <ClaimPanel
                 claim={claim2}
+                badgeLabel={t('claim.labelB')}
                 linkedSources={getSourcesForClaim(claim2.sourceIds)}
                 inspectedSourceIds={inspectedSourceIds}
                 onInspectSource={onInspectSource}
               />
             )}
           </div>
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '10px' }}>
-            {t('bridge.selectQuestion')}
-          </h3>
-          <div
+        </div>
+      )}
+
+      {/* ── Research trails: the paths the investigator may throw across ──── */}
+      <div
+        className="scene__panel"
+        style={{
+          marginTop: '4px',
+          marginBottom: '24px',
+          padding: '18px 14px 22px',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            gap: '8px',
+            marginBottom: '14px',
+          }}
+        >
+          <strong
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-              gap: '12px',
+              fontSize: '1.1rem',
+              color: 'var(--text-light)',
+              fontFamily: 'var(--font-serif)',
             }}
           >
-            {dataset.questions.map((q) => (
+            {t('bridge.selectQuestion')}
+          </strong>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            {t('card3d.hint')}
+          </span>
+        </div>
+
+        <Deck3D
+          cards={dataset.questions.map((q) => ({
+            id: q.id,
+            node: (
               <ResearchQuestion
                 key={q.id}
                 question={q}
@@ -326,20 +335,21 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
                 wasExplored={exploredQuestionIds.includes(q.id)}
                 onSelect={onSelectQuestion}
               />
-            ))}
-          </div>
-        </div>
-      )}
+            ),
+          }))}
+          activeId={selectedQuestionId}
+          ariaLabel={t('card3d.deck.questions')}
+          dataTestId="research-questions-deck"
+        />
+      </div>
 
       {/* M04 / F04 / A05: Revealed 3rd Clue S003 & Claim CL003 in immediate proximity when Q001 is selected/explored */}
       {isS003Unlocked && source3 && claim3 && (
         <div
           data-testid="revealed-s003-container"
-          className="animate-clue-reveal"
+          className="archive-card animate-clue-reveal"
+          data-state="revealed"
           style={{
-            backgroundColor: 'rgba(58, 140, 121, 0.14)',
-            border: '2px solid var(--archive-teal-bright)',
-            borderRadius: 'var(--radius-card)',
             padding: '20px',
             marginTop: '12px',
           }}
@@ -360,7 +370,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
                   backgroundColor: 'var(--archive-teal)',
                   color: 'var(--text-light)',
                   fontWeight: 700,
-                  fontSize: '0.8rem',
+                  fontSize: '0.78rem',
                   padding: '3px 10px',
                   borderRadius: '999px',
                   display: 'inline-block',
@@ -369,7 +379,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
               >
                 {t('bridge.revealBadge')}
               </span>
-              <h3 style={{ margin: 0, fontSize: '1.45rem', color: 'var(--text-light)' }}>
+              <h3 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-light)' }}>
                 {t('bridge.revealTitle', { id: source3.id, title: source3.title, date: source3.date })}
               </h3>
             </div>
@@ -385,7 +395,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
                 backgroundColor: 'var(--archive-amber)',
                 color: 'var(--archive-ink)',
                 fontWeight: 700,
-                padding: '10px 18px',
+                padding: '11px 20px',
                 borderRadius: 'var(--radius-control)',
                 border: 'none',
                 cursor: 'pointer',
@@ -411,6 +421,7 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
             />
             <ClaimPanel
               claim={claim3}
+              badgeLabel={t('claim.labelC')}
               linkedSources={[source3]}
               inspectedSourceIds={inspectedSourceIds}
               onInspectSource={onInspectSource}
@@ -419,6 +430,6 @@ export const MissingBridge: React.FC<MissingBridgeProps> = ({
           </div>
         </div>
       )}
-    </section>
+    </SceneShell>
   );
 };

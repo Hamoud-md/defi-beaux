@@ -18,24 +18,27 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
 }) => {
   const { t } = useI18n();
 
-  const viewSteps: { id: ViewStepId; code: string; label: string }[] = [
-    { id: 'S01', code: 'S01', label: t('progress.step.S01') },
-    { id: 'S02', code: 'S02', label: t('progress.step.S02') },
-    { id: 'S03', code: 'S03', label: t('progress.step.S03') },
-    { id: 'S04', code: 'S04', label: t('progress.step.S04') },
-    { id: 'S05', code: 'S05', label: t('progress.step.S05') },
-    { id: 'S06', code: 'S06', label: t('progress.step.S06') },
+  const viewSteps: { id: ViewStepId; label: string }[] = [
+    { id: 'S01', label: t('progress.step.S01') },
+    { id: 'S02', label: t('progress.step.S02') },
+    { id: 'S03', label: t('progress.step.S03') },
+    { id: 'S04', label: t('progress.step.S04') },
+    { id: 'S05', label: t('progress.step.S05') },
+    { id: 'S06', label: t('progress.step.S06') },
   ];
+
+  const currentIndex = Math.max(
+    viewSteps.findIndex((step) => step.id === currentStep),
+    0
+  );
 
   return (
     <section
       aria-label={t('progress.section')}
+      className="scene__panel"
       style={{
-        backgroundColor: 'var(--archive-ink-elevated)',
-        border: '1px solid var(--archive-midnight-border)',
-        borderRadius: 'var(--radius-card)',
-        padding: '16px',
-        marginBottom: '20px',
+        padding: '16px 18px',
+        marginBottom: '24px',
       }}
     >
       {/* Factual progress header (OFF-04 / F10 / A11) */}
@@ -61,18 +64,12 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           </span>
           <span
             data-testid="factual-progress-badge"
-            style={{
-              backgroundColor:
-                progress.completedCount === progress.totalCount
-                  ? 'var(--archive-teal)'
-                  : 'var(--archive-midnight)',
-              color: 'var(--text-light)',
-              fontWeight: 700,
-              fontSize: '0.85rem',
-              padding: '2px 10px',
-              borderRadius: '999px',
-            }}
+            className="state-chip"
+            data-tone={progress.completedCount === progress.totalCount ? 'revealed' : 'selected'}
           >
+            <span aria-hidden="true">
+              {progress.completedCount === progress.totalCount ? '✓' : '◈'}
+            </span>
             {t('progress.badge', {
               completed: progress.completedCount,
               total: progress.totalCount,
@@ -96,7 +93,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
         style={{
           width: '100%',
           height: '8px',
-          backgroundColor: 'var(--archive-ink)',
+          backgroundColor: 'rgba(7, 12, 20, 0.75)',
           borderRadius: '999px',
           overflow: 'hidden',
           marginBottom: '14px',
@@ -130,11 +127,11 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
             key={milestone.id}
             style={{
               fontSize: '0.82rem',
-              padding: '6px 10px',
+              padding: '8px 10px',
               borderRadius: '8px',
               backgroundColor: milestone.completed
                 ? 'var(--archive-teal-surface)'
-                : 'rgba(16, 26, 36, 0.55)',
+                : 'rgba(7, 12, 20, 0.55)',
               border: milestone.completed
                 ? '1px solid var(--archive-teal)'
                 : '1px solid var(--archive-midnight-border)',
@@ -152,64 +149,66 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
         ))}
       </ul>
 
-      {/* Step navigation S01–S06 */}
+      {/* Step navigation — the chapters of the investigation, the active one
+          lifted out of the page */}
       <nav aria-label={t('progress.nav.label')}>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px',
-          }}
-        >
-          {viewSteps.map((step) => {
-            const isCurrent = currentStep === step.id;
-            const isReceiptLocked = step.id === 'S06' && !hasVerifiedReceipt;
-            return (
-              <button
-                key={step.id}
-                type="button"
-                onClick={() => onSelectStep(step.id)}
-                aria-current={isCurrent ? 'step' : undefined}
-                data-testid={`nav-step-${step.id}`}
-                style={{
-                  flex: '1 1 auto',
-                  minWidth: '135px',
-                  padding: '8px 12px',
-                  borderRadius: 'var(--radius-control)',
-                  border: isCurrent
-                    ? '2px solid var(--archive-amber-bright)'
-                    : '1px solid var(--archive-midnight-border)',
-                  backgroundColor: isCurrent
-                    ? 'var(--archive-midnight)'
-                    : 'rgba(16, 26, 36, 0.75)',
-                  color: isCurrent ? 'var(--text-light)' : 'var(--text-muted)',
-                  fontWeight: isCurrent ? 700 : 500,
-                  fontSize: '0.86rem',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'background-color var(--motion-m09)',
-                }}
-              >
-                <span
+        <div className="scene-3d">
+          <div className="progress-path-3d">
+            {viewSteps.map((step, index) => {
+              const isCurrent = currentStep === step.id;
+              const isReceiptLocked = step.id === 'S06' && !hasVerifiedReceipt;
+              const offset = index - currentIndex;
+              const distance = Math.abs(offset);
+
+              return (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => onSelectStep(step.id)}
+                  aria-current={isCurrent ? 'step' : undefined}
+                  data-testid={`nav-step-${step.id}`}
+                  className={`progress-step-3d${isCurrent ? ' is-current' : ''}`}
                   style={{
-                    display: 'inline-block',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    color: isCurrent ? 'var(--archive-amber-bright)' : 'var(--text-muted)',
-                    marginRight: '6px',
-                  }}
+                    '--step-scale': `${isCurrent ? 1.03 : 1 - distance * 0.008}`,
+                    '--step-opacity': `${isCurrent ? 1 : Math.max(0.62, 1 - distance * 0.1)}`,
+                    padding: '9px 12px',
+                    borderRadius: 'var(--radius-control)',
+                    border: isCurrent
+                      ? '2px solid var(--archive-amber-bright)'
+                      : '1px solid var(--archive-midnight-border)',
+                    backgroundColor: isCurrent
+                      ? 'var(--archive-midnight)'
+                      : 'rgba(7, 12, 20, 0.75)',
+                    color: isCurrent ? 'var(--text-light)' : 'var(--text-muted)',
+                    fontWeight: isCurrent ? 700 : 500,
+                    fontSize: '0.86rem',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  } as React.CSSProperties}
                 >
-                  [{step.code}]
-                </span>
-                {step.label}
-                {isReceiptLocked && (
-                  <span style={{ fontSize: '0.73rem', display: 'block', opacity: 0.75 }}>
-                    {t('progress.afterSave')}
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      color: isCurrent ? 'var(--archive-amber-bright)' : 'var(--text-muted)',
+                      marginRight: '6px',
+                    }}
+                  >
+                    {String(index + 1).padStart(2, '0')}
                   </span>
-                )}
-              </button>
-            );
-          })}
+                  {step.label}
+                  {isReceiptLocked && (
+                    <span style={{ fontSize: '0.73rem', display: 'block', opacity: 0.75 }}>
+                      {t('progress.afterSave')}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </nav>
     </section>

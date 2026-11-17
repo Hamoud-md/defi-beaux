@@ -2,6 +2,7 @@ import React from 'react';
 import { ArchiveDataset, Contribution } from '../types/archive';
 import { getLocalizedConclusionOptions } from '../data/caseC001';
 import { useI18n } from '../i18n/I18nContext';
+import { SceneShell } from './SceneShell';
 
 interface ContributionReceiptProps {
   contribution: Contribution | null;
@@ -23,60 +24,52 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
 
   if (!contribution) {
     return (
-      <section
-        aria-labelledby="no-receipt-heading"
-        data-testid="no-receipt-empty-state"
-        style={{
-          backgroundColor: 'var(--archive-ink-elevated)',
-          border: '1px solid var(--archive-midnight-border)',
-          borderRadius: 'var(--radius-card)',
-          padding: '24px',
-        }}
+      <SceneShell
+        chapter={t('scene.chapter.VI')}
+        title={t('receipt.noReceipt.title')}
+        lede={t('receipt.noReceipt.text')}
+        titleId="no-receipt-heading"
+        testId="no-receipt-empty-state"
       >
-        <h2 id="no-receipt-heading" style={{ fontSize: '1.5rem', marginBottom: '8px' }}>
-          {t('receipt.noReceipt.title')}
-        </h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '16px' }}>
-          {t('receipt.noReceipt.text')}
-        </p>
-        <button
-          type="button"
-          onClick={onReviseVerdict}
-          style={{
-            backgroundColor: 'var(--archive-amber)',
-            color: 'var(--archive-ink)',
-            fontWeight: 700,
-            padding: '10px 18px',
-            borderRadius: 'var(--radius-control)',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          {t('receipt.noReceipt.cta')}
-        </button>
-      </section>
+        <div className="scene__panel">
+          <button
+            type="button"
+            onClick={onReviseVerdict}
+            style={{
+              backgroundColor: 'var(--archive-amber)',
+              color: 'var(--archive-ink)',
+              fontWeight: 700,
+              padding: '10px 18px',
+              borderRadius: 'var(--radius-control)',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            {t('receipt.noReceipt.cta')}
+          </button>
+        </div>
+      </SceneShell>
     );
   }
 
   const conclusionMeta = conclusionOptions.find((c) => c.value === contribution.conclusionType);
 
   return (
-    <section
-      aria-labelledby="receipt-heading"
-      data-testid="contribution-receipt-section"
-      className="animate-entry"
+    <SceneShell
+      chapter={t('scene.chapter.VI')}
+      title={t('receipt.title')}
+      lede={t('receipt.subtitle', { status: t('receipt.status.local') })}
+      titleId="receipt-heading"
+      testId="contribution-receipt-section"
     >
       <div
-        className="paper-surface"
+        className="scene__panel scene__panel--paper"
         style={{
-          backgroundColor: 'var(--archive-paper)',
           color: 'var(--text-ink)',
-          borderRadius: 'var(--radius-card)',
-          border: '3px solid var(--archive-teal)',
+          border: '2px solid var(--archive-teal)',
           padding: '24px',
-          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.35)',
+          boxShadow: '0 20px 48px rgba(0, 0, 0, 0.45)',
           marginBottom: '24px',
-          transition: 'all var(--motion-m07)',
         }}
       >
         {/* Top Badges: Local Demo Receipt + Fictional Archive Warning */}
@@ -121,20 +114,6 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
           </span>
         </div>
 
-        <h2
-          id="receipt-heading"
-          style={{
-            fontSize: '1.85rem',
-            margin: '0 0 6px 0',
-            color: 'var(--text-ink)',
-          }}
-        >
-          {t('receipt.title')}
-        </h2>
-        <p style={{ margin: '0 0 18px 0', color: 'var(--text-ink-secondary)', fontSize: '0.95rem' }}>
-          {t('receipt.subtitle', { status: contribution.status })}
-        </p>
-
         {/* Metadata Grid */}
         <div
           style={{
@@ -164,9 +143,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
             <span style={{ display: 'block', fontSize: '0.76rem', color: '#33475B' }}>
               {t('receipt.caseLabel')}
             </span>
-            <strong>
-              {contribution.caseId} ({t('bridge.activeTrack')} {contribution.selectedQuestionId ?? 'N/A'})
-            </strong>
+            <strong>{contribution.caseId}</strong>
           </div>
 
           <div>
@@ -203,10 +180,7 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
               marginBottom: '12px',
             }}
           >
-            {conclusionMeta?.label ?? contribution.conclusionType}{' '}
-            <code style={{ fontSize: '0.82rem', fontWeight: 600 }}>
-              [{contribution.conclusionType}]
-            </code>
+            {conclusionMeta?.label ?? contribution.conclusionType}
           </div>
 
           <h3 style={{ fontSize: '1.2rem', margin: '0 0 6px 0', color: 'var(--text-ink)' }}>
@@ -241,14 +215,14 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
               paddingRight: '20px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '6px',
+              gap: '8px',
             }}
           >
             {contribution.referencedSourceIds.map((srcId) => {
               const src = dataset.sources.find((s) => s.id === srcId);
               return (
                 <li key={srcId} style={{ fontWeight: 600 }}>
-                  <strong>{srcId}</strong> — {src?.title ?? 'Source'} ({src?.date ?? ''}) :{' '}
+                  <strong>{src?.title ?? srcId}</strong> ({src?.date ?? ''}) :{' '}
                   <span style={{ fontWeight: 400 }}>{src?.content}</span>
                 </li>
               );
@@ -304,50 +278,49 @@ export const ContributionReceipt: React.FC<ContributionReceiptProps> = ({
 
       {/* Local Contribution Registry History */}
       {allContributions.length > 0 && (
-        <div
-          style={{
-            backgroundColor: 'var(--archive-ink-elevated)',
-            border: '1px solid var(--archive-midnight-border)',
-            borderRadius: 'var(--radius-card)',
-            padding: '18px',
-          }}
-        >
+        <div className="scene__panel">
           <h3 style={{ fontSize: '1.2rem', margin: '0 0 10px 0' }}>
             {t('receipt.historyTitle', { n: allContributions.length })}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {allContributions.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  backgroundColor: 'rgba(16, 26, 36, 0.7)',
-                  border: '1px solid var(--archive-midnight-border)',
-                  borderRadius: '8px',
-                  padding: '10px 14px',
-                  fontSize: '0.88rem',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                  gap: '8px',
-                }}
-              >
-                <div>
-                  <strong style={{ fontFamily: 'var(--font-mono)', color: 'var(--archive-amber-bright)' }}>
-                    {item.id}
-                  </strong>{' '}
-                  • <span>{item.conclusionType}</span> •{' '}
-                  <span style={{ color: 'var(--text-muted)' }}>
-                    {t('receipt.sources')} [{item.referencedSourceIds.join(', ')}]
+            {allContributions.map((item) => {
+              const meta = conclusionOptions.find((c) => c.value === item.conclusionType);
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    backgroundColor: 'rgba(7, 12, 20, 0.7)',
+                    border: '1px solid var(--archive-midnight-border)',
+                    borderRadius: '8px',
+                    padding: '10px 14px',
+                    fontSize: '0.88rem',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                    gap: '8px',
+                  }}
+                >
+                  <div>
+                    <strong style={{ fontFamily: 'var(--font-mono)', color: 'var(--archive-amber-bright)' }}>
+                      {item.id}
+                    </strong>{' '}
+                    • <span>{meta?.label ?? item.conclusionType}</span> •{' '}
+                    <span style={{ color: 'var(--text-muted)' }}>
+                      {t('receipt.sources')}{' '}
+                      {item.referencedSourceIds
+                        .map((id) => dataset.sources.find((s) => s.id === id)?.title ?? id)
+                        .join(', ')}
+                    </span>
+                  </div>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                    {new Date(item.savedAt).toLocaleString(config.dateLocale)}
                   </span>
                 </div>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                  {new Date(item.savedAt).toLocaleString(config.dateLocale)} ({item.status})
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
-    </section>
+    </SceneShell>
   );
 };

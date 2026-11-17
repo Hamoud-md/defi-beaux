@@ -8,6 +8,9 @@ import {
 import { getLocalizedConclusionOptions } from '../data/caseC001';
 import { isSourceAccessible, validateContributionDraft } from '../domain/validation';
 import { useI18n } from '../i18n/I18nContext';
+import { Deck3D } from './threeD/Deck3D';
+import { VerdictCard3D } from './VerdictCard3D';
+import { SceneShell } from './SceneShell';
 
 interface ConclusionPanelProps {
   dataset: ArchiveDataset;
@@ -77,36 +80,24 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
     investigation.verdictHistory.length > 0 ? investigation.verdictHistory[0] : null;
 
   return (
-    <section
-      aria-labelledby="conclusion-panel-heading"
-      data-testid="conclusion-panel-section"
-      className="animate-entry"
+    <SceneShell
+      chapter={t('scene.chapter.V')}
+      title={t('conclusion.title')}
+      lede={t('conclusion.subtitle')}
+      titleId="conclusion-panel-heading"
+      testId="conclusion-panel-section"
     >
-      <div style={{ marginBottom: '20px' }}>
-        <h2
-          id="conclusion-panel-heading"
-          style={{ fontSize: '1.75rem', margin: '0 0 8px 0', color: 'var(--text-light)' }}
-        >
-          {t('conclusion.title')}
-        </h2>
-        <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-          {t('conclusion.subtitle')}
-        </p>
-      </div>
-
       {/* Reversible Verdict Comparison (P11 / F06 / M06 / A07) */}
       {latestRevision && (
         <div
           role="region"
           aria-label="Historique de révision du verdict (Avant / Après)"
           data-testid="reversible-verdict-comparison"
+          className="archive-card"
+          data-state="selected"
           style={{
-            backgroundColor: 'rgba(197, 138, 69, 0.16)',
-            border: '2px solid var(--archive-amber)',
-            borderRadius: 'var(--radius-card)',
             padding: '16px',
             marginBottom: '20px',
-            transition: 'all var(--motion-m06)',
           }}
         >
           <div
@@ -123,7 +114,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               {t('conclusion.revision.title')}
             </strong>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              {t('conclusion.revision.inspected', { ids: investigation.inspectedSourceIds.join(', ') })}
+              {t('conclusion.revision.inspected', { n: investigation.inspectedSourceIds.length })}
             </span>
           </div>
 
@@ -137,7 +128,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
           >
             <div
               style={{
-                backgroundColor: 'rgba(16, 26, 36, 0.7)',
+                backgroundColor: 'rgba(7, 12, 20, 0.7)',
                 padding: '10px 12px',
                 borderRadius: '8px',
                 border: '1px solid var(--archive-midnight-border)',
@@ -178,10 +169,9 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
           <div
             role="alert"
             data-testid="error-question-required"
+            className="archive-card"
+            data-state="locked"
             style={{
-              backgroundColor: 'var(--archive-crimson-surface)',
-              border: '2px solid var(--archive-crimson)',
-              borderRadius: 'var(--radius-control)',
               padding: '14px 16px',
               marginBottom: '18px',
               display: 'flex',
@@ -212,14 +202,12 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
 
         {/* 1. Verdict Selection */}
         <fieldset
+          className="scene__panel"
           style={{
             border: validationErrors.conclusionType
               ? '2px solid var(--archive-crimson)'
-              : '1px solid var(--archive-midnight-border)',
-            borderRadius: 'var(--radius-card)',
-            padding: '18px',
+              : '1px solid rgba(120, 160, 200, 0.14)',
             marginBottom: '20px',
-            backgroundColor: 'var(--archive-ink-elevated)',
           }}
         >
           <legend
@@ -249,87 +237,61 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
             </p>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {conclusionOptions.map((option, idx) => {
-              const isChecked = investigation.draftConclusionType === option.value;
-              return (
-                <label
-                  key={option.value}
-                  data-testid={`conclusion-option-${option.value}`}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '12px',
-                    padding: '14px',
-                    borderRadius: 'var(--radius-control)',
-                    backgroundColor: isChecked
-                      ? 'var(--archive-midnight)'
-                      : 'rgba(16, 26, 36, 0.7)',
-                    border: isChecked
-                      ? '2px solid var(--archive-amber-bright)'
-                      : '1px solid var(--archive-midnight-border)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <input
-                    ref={idx === 0 ? firstConclusionRadioRef : undefined}
-                    type="radio"
-                    name="conclusionType"
-                    value={option.value}
-                    checked={isChecked}
-                    onChange={() => {
-                      onSelectConclusionType(option.value);
-                      if (validationErrors.conclusionType) {
-                        setValidationErrors((prev) => ({ ...prev, conclusionType: undefined }));
-                      }
-                    }}
-                    aria-describedby={
-                      validationErrors.conclusionType ? 'conclusion-type-error' : undefined
-                    }
-                    style={{ marginTop: '4px', transform: 'scale(1.2)' }}
-                  />
-                  <div>
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        fontSize: '1rem',
-                        color: 'var(--text-light)',
-                        marginBottom: '4px',
-                      }}
-                    >
-                      {option.label}{' '}
-                      <code
-                        style={{
-                          fontSize: '0.78rem',
-                          color: 'var(--archive-amber-bright)',
-                        }}
-                      >
-                        [{option.value}]
-                      </code>
-                    </div>
-                    <p style={{ margin: '0 0 6px 0', fontSize: '0.9rem', color: 'var(--text-light)' }}>
-                      {option.summary}
-                    </p>
-                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                      <em>{option.epistemicWarning}</em>
-                    </p>
-                  </div>
-                </label>
-              );
-            })}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '14px',
+            }}
+          >
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+              {t('card3d.hint')}
+            </span>
           </div>
+
+          <Deck3D
+            cards={conclusionOptions.map((option, idx) => ({
+              id: option.value,
+              node: (
+                <VerdictCard3D
+                  key={option.value}
+                  option={option}
+                  isChecked={investigation.draftConclusionType === option.value}
+                  isFirst={idx === 0}
+                  hasError={Boolean(validationErrors.conclusionType)}
+                  inputRef={idx === 0 ? firstConclusionRadioRef : undefined}
+                  describedById={
+                    validationErrors.conclusionType ? 'conclusion-type-error' : undefined
+                  }
+                  onSelect={(value) => {
+                    onSelectConclusionType(value);
+                    if (validationErrors.conclusionType) {
+                      setValidationErrors((prev) => ({ ...prev, conclusionType: undefined }));
+                    }
+                  }}
+                  onClearError={() =>
+                    setValidationErrors((prev) => ({ ...prev, conclusionType: undefined }))
+                  }
+                />
+              ),
+            }))}
+            activeId={investigation.draftConclusionType}
+            ariaLabel={t('card3d.deck.verdicts')}
+            dataTestId="verdict-cards-deck"
+          />
         </fieldset>
 
         {/* 2. Referenced Sources Selection */}
         <fieldset
+          className="scene__panel"
           style={{
             border: validationErrors.referencedSourceIds
               ? '2px solid var(--archive-crimson)'
-              : '1px solid var(--archive-midnight-border)',
-            borderRadius: 'var(--radius-card)',
-            padding: '18px',
+              : '1px solid rgba(120, 160, 200, 0.14)',
             marginBottom: '20px',
-            backgroundColor: 'var(--archive-ink-elevated)',
           }}
         >
           <legend
@@ -375,22 +337,25 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               const inspected = investigation.inspectedSourceIds.includes(src.id);
               const referenced = investigation.draftReferencedSourceIds.includes(src.id);
 
+              const cardState = !unlocked
+                ? 'locked'
+                : referenced
+                  ? 'selected'
+                  : inspected
+                    ? 'revealed'
+                    : 'neutral';
+
               return (
                 <div
                   key={src.id}
+                  className="archive-card"
+                  data-state={cardState}
                   style={{
-                    backgroundColor: referenced
-                      ? 'var(--archive-teal-surface)'
-                      : 'rgba(16, 26, 36, 0.7)',
-                    border: referenced
-                      ? '2px solid var(--archive-teal-bright)'
-                      : '1px solid var(--archive-midnight-border)',
-                    borderRadius: 'var(--radius-control)',
                     padding: '12px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    gap: '8px',
+                    gap: '10px',
                   }}
                 >
                   <label
@@ -399,7 +364,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                       alignItems: 'flex-start',
                       gap: '10px',
                       cursor: inspected ? 'pointer' : 'not-allowed',
-                      opacity: inspected ? 1 : 0.75,
+                      opacity: inspected ? 1 : 0.8,
                     }}
                   >
                     <input
@@ -421,7 +386,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                     />
                     <div>
                       <strong style={{ display: 'block', fontSize: '0.95rem' }}>
-                        {src.id} — {src.title} ({src.date})
+                        {src.title} ({src.date})
                       </strong>
                       <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                         {!unlocked
@@ -432,6 +397,18 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                       </span>
                     </div>
                   </label>
+
+                  {!unlocked && (
+                    <div className="lock-note">
+                      <span className="lock-note__icon" aria-hidden="true">
+                        🔒
+                      </span>
+                      <span>
+                        <strong>{t('conclusion.source.lockedTitle')}</strong>{' '}
+                        {t('conclusion.source.lockedReason', { path: t('bridge.path.spatial') })}
+                      </span>
+                    </div>
+                  )}
 
                   {unlocked && !inspected && (
                     <button
@@ -450,7 +427,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
                         cursor: 'pointer',
                       }}
                     >
-                      {t('conclusion.source.inspectNow', { id: src.id })}
+                      {t('conclusion.source.inspectNow')}
                     </button>
                   )}
                 </div>
@@ -461,14 +438,12 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
 
         {/* 3. Argumented Justification */}
         <div
+          className="scene__panel"
           style={{
             border: validationErrors.justification
               ? '2px solid var(--archive-crimson)'
-              : '1px solid var(--archive-midnight-border)',
-            borderRadius: 'var(--radius-card)',
-            padding: '18px',
+              : '1px solid rgba(120, 160, 200, 0.14)',
             marginBottom: '20px',
-            backgroundColor: 'var(--archive-ink-elevated)',
           }}
         >
           <div
@@ -559,7 +534,7 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               padding: '12px',
               borderRadius: 'var(--radius-control)',
               border: '1px solid var(--archive-midnight-border)',
-              backgroundColor: 'var(--archive-ink)',
+              backgroundColor: 'rgba(7, 12, 20, 0.7)',
               color: 'var(--text-light)',
               fontSize: '1rem',
               lineHeight: 1.5,
@@ -573,10 +548,10 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
           <div
             role="alert"
             data-testid="conclusion-storage-error"
+            className="archive-card"
+            data-state="locked"
             style={{
-              backgroundColor: 'var(--archive-crimson-surface)',
-              border: '2px solid var(--archive-crimson)',
-              borderRadius: 'var(--radius-control)',
+              borderColor: 'var(--archive-crimson)',
               padding: '14px 16px',
               marginBottom: '18px',
             }}
@@ -609,17 +584,18 @@ export const ConclusionPanel: React.FC<ConclusionPanelProps> = ({
               color: 'var(--archive-ink)',
               fontWeight: 700,
               fontSize: '1.05rem',
-              padding: '12px 24px',
+              padding: '13px 26px',
               borderRadius: 'var(--radius-control)',
               border: 'none',
               cursor: 'pointer',
-              transition: 'background-color var(--motion-m09)',
+              boxShadow: '0 6px 20px rgba(197, 138, 69, 0.3)',
+              transition: 'background-color var(--motion-m09), transform var(--motion-m09)',
             }}
           >
             {t('conclusion.submit')}
           </button>
         </div>
       </form>
-    </section>
+    </SceneShell>
   );
 };

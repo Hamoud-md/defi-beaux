@@ -24,9 +24,9 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
   return (
     <header
       style={{
-        borderBottom: '1px solid var(--archive-midnight-border)',
-        padding: '20px 0 18px',
-        marginBottom: '20px',
+        padding: '26px 0 22px',
+        marginBottom: '24px',
+        borderBottom: '1px solid rgba(224, 167, 95, 0.22)',
       }}
     >
       <div
@@ -36,7 +36,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '12px',
-          marginBottom: '12px',
+          marginBottom: '18px',
         }}
       >
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
@@ -49,7 +49,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
               backgroundColor: 'var(--archive-amber)',
               color: 'var(--archive-ink)',
               fontWeight: 700,
-              fontSize: '0.85rem',
+              fontSize: '0.82rem',
               padding: '4px 12px',
               borderRadius: '999px',
               letterSpacing: '0.02em',
@@ -60,15 +60,16 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
 
           <span
             style={{
-              backgroundColor: 'var(--archive-midnight)',
+              backgroundColor: 'rgba(7, 12, 20, 0.6)',
               border: '1px solid var(--archive-midnight-border)',
-              color: 'var(--text-light)',
-              fontSize: '0.82rem',
+              color: 'var(--text-muted)',
+              fontSize: '0.8rem',
               padding: '4px 10px',
               borderRadius: '999px',
             }}
           >
-            {t('header.casePrefix')} <strong>{caseData.id}</strong> • {caseData.city}
+            {t('header.casePrefix')} <strong style={{ color: 'var(--text-light)' }}>{caseData.id}</strong>{' '}
+            • {caseData.city}
           </span>
         </div>
 
@@ -82,7 +83,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              backgroundColor: 'var(--archive-midnight)',
+              backgroundColor: 'rgba(7, 12, 20, 0.6)',
               border: '1px solid var(--archive-amber-bright)',
               borderRadius: 'var(--radius-control)',
               padding: '2px 4px',
@@ -90,7 +91,16 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
             }}
             aria-label={t('header.lang')}
           >
-            <span style={{ fontSize: '0.8rem', paddingLeft: '6px', paddingRight: '6px', color: 'var(--archive-amber-bright)', fontWeight: 700 }}>
+            <span
+              style={{
+                fontSize: '0.8rem',
+                paddingLeft: '6px',
+                paddingRight: '6px',
+                color: 'var(--archive-amber-bright)',
+                fontWeight: 700,
+              }}
+              aria-hidden="true"
+            >
               🌐
             </span>
             {(['fr', 'en', 'ar'] as Locale[]).map((loc) => {
@@ -125,7 +135,9 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
             onClick={onToggleReducedMotion}
             aria-pressed={reducedMotion}
             style={{
-              backgroundColor: reducedMotion ? 'var(--archive-teal)' : 'var(--archive-midnight)',
+              backgroundColor: reducedMotion
+                ? 'var(--archive-teal-surface)'
+                : 'rgba(7, 12, 20, 0.6)',
               color: 'var(--text-light)',
               border: '1px solid var(--archive-midnight-border)',
               borderRadius: 'var(--radius-control)',
@@ -147,7 +159,7 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
               )
             }
             style={{
-              backgroundColor: 'var(--archive-midnight)',
+              backgroundColor: 'rgba(7, 12, 20, 0.6)',
               color: 'var(--text-light)',
               border: '1px solid var(--archive-midnight-border)',
               borderRadius: 'var(--radius-control)',
@@ -184,48 +196,40 @@ export const CaseHeader: React.FC<CaseHeaderProps> = ({
         </div>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          gap: '16px',
-        }}
-      >
-        <div>
-          <p
-            style={{
-              margin: '0 0 4px 0',
-              fontSize: '0.85rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: 'var(--archive-amber-bright)',
-              fontWeight: 600,
-            }}
-          >
-            {t('app.supertitle')}
-          </p>
-          <h1
-            style={{
-              fontSize: 'clamp(1.75rem, 3vw, 2.4rem)',
-              margin: '0 0 6px 0',
-              color: 'var(--text-light)',
-            }}
-          >
-            {caseData.id} — {caseData.title}
-          </h1>
-          <p
-            style={{
-              margin: 0,
-              fontStyle: 'italic',
-              color: 'var(--text-muted)',
-              fontSize: '1.05rem',
-            }}
-          >
-            « {caseData.promise} »
-          </p>
-        </div>
+      <div>
+        <p
+          style={{
+            margin: '0 0 6px 0',
+            fontSize: '0.74rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.22em',
+            color: 'var(--archive-amber-bright)',
+            fontWeight: 700,
+          }}
+        >
+          {t('app.supertitle')}
+        </p>
+        <h1
+          style={{
+            fontSize: 'clamp(1.85rem, 3.4vw, 2.6rem)',
+            margin: '0 0 8px 0',
+            color: 'var(--text-light)',
+            textShadow: '0 4px 32px rgba(0, 0, 0, 0.7)',
+          }}
+        >
+          {caseData.id} — {caseData.title}
+        </h1>
+        <p
+          style={{
+            margin: 0,
+            fontStyle: 'italic',
+            color: 'var(--text-muted)',
+            fontSize: '1.08rem',
+            fontFamily: 'var(--font-serif)',
+          }}
+        >
+          « {caseData.promise} »
+        </p>
       </div>
     </header>
   );

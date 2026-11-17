@@ -26,7 +26,14 @@ Au centre de l'écran, le lien entre les deux affirmations apparaît comme **une
 
 * **Framework & Typage :** React 19 + TypeScript (Strict mode) + Vite.
 * **Direction Artistique (CDR-001) :** *Noir Archivistique Contemporain* (`#101A24`, `#203549`, papier documentaire `#E8DCC8`, accents ambre `#C58A45` et sauge/teal `#3A8C79`). Typographies *DM Sans* et *Cormorant Garamond*.
-* **Motion Design (M01–M10) :** Micro-transitions contrôlées par variables CSS (120ms à 240ms), respect absolu de `prefers-reduced-motion` et bascule explicite d'accessibilité.
+* **Cartes 3D interactives (CDR-002) :** *Cartes Archivistiques Volumétriques*. Chaque point de décision de l'enquête est matérialisé par un **éventail de cartes en 3D** (`Deck3D`) posé dans une scène de perspective CSS. Les cartes **retournent physiquement sur 180°** (`FlipCard3D`) en fonction du choix de l'utilisateur : la face avant porte la question / le verdict, la face arrière porte la réponse causale ou l'avertissement épistémique. La carte choisie est **avancée en profondeur** (`translateZ`) et mise en avant, les autres reculent et s'assombrissent. Une inclinaison parallaxe suit le pointeur (`useTilt3D`).
+  * *S02* : les deux pièces S001 / S002 forment un éventail documentaire en profondeur.
+  * *S03 (Signature Interaction)* : les trois pistes de recherche Q001 / Q002 / Q003 sont des cartes à retourner — le investigator « retourne » littéralement la piste choisie pour découvrir ce qu'elle répond.
+  * *S04* : les hypothèses H001 / H002 / H003 sont disposées en éventail sur la table de raisonnement.
+  * *S05* : les trois verdicts autorisés deviennent des cartes ; choisir un verdict fait pivoter sa carte et révèle son avertissement épistémique.
+  * *Barre de progression* : les six étapes S01–S06 sont disposées sur un **chemin 3D**, l'étape active étant soulevée.
+* **Motion Design (M01–M10) :** Micro-transitions contrôlées par variables CSS (120ms à 240ms), respect absolu de `prefers-reduced-motion` et bascule explicite d'accessibilité. Sous mouvement réduit, la profondeur décorative est aplatie et les transitions supprimées, **mais la rotation 180° de la carte est conservée** afin que la face arrière reste accessible.
+* **Robustesse du rendu 3D :** aucune valeur d'`opacity`, de `filter` ou d'`isolation` n'est appliquée sur un conteneur `preserve-3d` (ces propriétés aplatiraient le contexte 3D et casseraient le retournement). L'assombrissement des cartes en retrait est réalisé par un voile superposé, et les faces arrière restent dans l'arbre d'accessibilité (aucun `aria-hidden`, aucun démontage).
 * **Persistance & Intégrité (F07 / A08 / A22) :** Sauvegarde réelle dans le `LocalStorage` local de démonstration avec **relecture et vérification immédiate de concordance** avant émission de tout reçu. En cas de panne de stockage simulée (Test A22), aucun faux reçu n'est généré et la saisie de l'utilisateur est préservée.
 * **Sécurité :** Neutralisation systématique des balises HTML dans les justifications d'enquête (Section 10).
 * **Mode Fallback (A23) :** Commutateur permettant de basculer à tout moment entre la Signature Interaction (*Missing Bridge*) et le mode *Comparaison guidée classique*.
@@ -58,6 +65,11 @@ Au centre de l'écran, le lien entre les deux affirmations apparaît comme **une
 | **A21** | Dataset | Détection de jeu de données vide | Validé (signalement d'indisponibilité sans faux succès) |
 | **A22** | Stockage | Panne de stockage simulée | Validé (aucun reçu mensonger, saisie conservée intacte) |
 | **A23** | UX | Comparaison Signature vs Baseline classique | Validé (bouton de bascule interactif en en-tête) |
+| **C01** | CDR-002 | Éventail 3D des trois pistes de recherche | Validé (`research-questions-deck` : 3 emplacements, 3 cartes, 6 faces) |
+| **C02** | CDR-002 | Retournement de la carte déclenché par le choix | Validé (`select-question-Q001` → `.card-3d.is-flipped` + emplacement actif) |
+| **C03** | CDR-002 / A10 | Face arrière accessible aux technologies d'assistance | Validé (`question-feedback-Q002` présent dans `.card-3d__face--back`, non masqué) |
+| **C04** | CDR-002 | Éventail 3D des trois verdicts autorisés | Validé (`verdict-cards-deck` + radio-boutons préservés et focalisables) |
+| **C05** | CDR-002 / A12 | Retournement toujours utilisable en mouvement réduit | Validé (`data-reduced-motion="true"` → carte toujours retournable, transitions supprimées) |
 
 ---
 

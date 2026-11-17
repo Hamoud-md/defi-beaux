@@ -18,11 +18,14 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
 }) => {
   const { t } = useI18n();
 
+  const cardState = isFocusedDetail ? 'selected' : isInspected ? 'revealed' : 'neutral';
+
   return (
     <article
       aria-labelledby={`source-title-${source.id}`}
       data-testid={`source-card-${source.id}`}
-      className="paper-surface"
+      data-state={cardState}
+      className="paper-surface archive-card"
       style={{
         backgroundColor: 'var(--archive-paper)',
         color: 'var(--text-ink)',
@@ -33,7 +36,7 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
             ? '2px solid var(--archive-teal)'
             : '2px solid var(--archive-paper-border)',
         padding: '20px',
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.28)',
+        boxShadow: '0 10px 28px rgba(0, 0, 0, 0.4)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -41,7 +44,7 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
       }}
     >
       <div>
-        {/* Document Metadata Header */}
+        {/* Document metadata header */}
         <div
           style={{
             display: 'flex',
@@ -54,51 +57,39 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
             paddingBottom: '10px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span
-              style={{
-                backgroundColor: 'var(--text-ink)',
-                color: 'var(--archive-paper)',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                padding: '2px 8px',
-                borderRadius: '6px',
-                fontFamily: 'var(--font-mono)',
-              }}
-            >
-              {source.id}
-            </span>
-            <span
-              style={{
-                fontWeight: 700,
-                fontSize: '0.88rem',
-                color: 'var(--text-ink-secondary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-              }}
-            >
-              {source.sourceType}
-            </span>
-          </div>
+          <span
+            style={{
+              backgroundColor: 'var(--text-ink)',
+              color: 'var(--archive-paper)',
+              fontWeight: 700,
+              fontSize: '0.78rem',
+              padding: '3px 9px',
+              borderRadius: '6px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {source.sourceType}
+          </span>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <time
               dateTime={source.isoDate}
               style={{
                 fontWeight: 700,
-                fontSize: '0.95rem',
+                fontSize: '0.92rem',
                 backgroundColor: '#DFD2BC',
                 padding: '2px 10px',
                 borderRadius: '6px',
                 border: '1px solid #C4B293',
               }}
             >
-              {t('evidence.date')} {source.date}
+              {source.date}
             </time>
             <span
               data-testid={`source-status-${source.id}`}
               style={{
-                fontSize: '0.8rem',
+                fontSize: '0.78rem',
                 fontWeight: 700,
                 padding: '3px 10px',
                 borderRadius: '999px',
@@ -111,12 +102,12 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
           </div>
         </div>
 
-        {/* Title & Archival Code */}
+        {/* Title & archival reference */}
         <div style={{ marginBottom: '12px' }}>
           <h3
             id={`source-title-${source.id}`}
             style={{
-              fontSize: '1.45rem',
+              fontSize: '1.4rem',
               margin: '0 0 4px 0',
               color: 'var(--text-ink)',
             }}
@@ -126,7 +117,7 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
           <p
             style={{
               margin: 0,
-              fontSize: '0.82rem',
+              fontSize: '0.8rem',
               color: 'var(--text-ink-secondary)',
               fontFamily: 'var(--font-mono)',
             }}
@@ -136,10 +127,10 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
           </p>
         </div>
 
-        {/* Accessible Fictional Illustration */}
+        {/* Accessible fictional illustration */}
         <ArchivalIllustration type={source.illustrationType} altText={source.illustrationAlt} />
 
-        {/* Verbatim Quote Box */}
+        {/* Verbatim quote box */}
         <blockquote
           style={{
             margin: '0 0 12px 0',
@@ -149,7 +140,7 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
             borderRight: '4px solid var(--text-ink)',
             borderRadius: '8px',
             fontFamily: 'var(--font-serif)',
-            fontSize: '1.25rem',
+            fontSize: '1.22rem',
             fontWeight: 600,
             color: 'var(--text-ink)',
           }}
@@ -157,7 +148,7 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
           {source.content}
         </blockquote>
 
-        {/* Context & Epistemic Note */}
+        {/* Context & epistemic note */}
         <p
           style={{
             margin: '0 0 12px 0',
@@ -212,8 +203,8 @@ export const EvidenceDocument: React.FC<EvidenceDocumentProps> = ({
           }}
         >
           {isInspected
-            ? t('evidence.inspectedBtn', { id: source.id })
-            : t('evidence.inspectBtn', { id: source.id, date: source.date })}
+            ? t('evidence.inspectedBtn')
+            : t('evidence.inspectBtn', { date: source.date })}
         </button>
       </div>
     </article>
